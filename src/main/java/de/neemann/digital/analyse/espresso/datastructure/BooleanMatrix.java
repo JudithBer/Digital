@@ -12,33 +12,33 @@ import de.neemann.digital.analyse.quinemc.ThreeStateValue;
  */
 public class BooleanMatrix {
 
-    private Cover diffCover;
+    protected Cover diffCover;
     private Cube cube;
-    private Cover cover;
+    private Cover originalCover;
 
     private Set<Integer> ignoredColumns = new HashSet<>();
     private Set<Integer> ignoredRows = new HashSet<>();
 
     /**
      * Generate a new BooleanMatrix with the given Cube and Cover
-     * @param cover
+     * @param originalCover
      *            TODO Beschreibung
      * @param cube
      *            TODO Beschreibung
      */
-    public BooleanMatrix(Cover cover, Cube cube) {
+    public BooleanMatrix(Cover originalCover, Cube cube) {
         // Validate the input parameters
-        if (cover.size() == 0) {
+        if (originalCover.size() == 0) {
             throw new IllegalArgumentException("Cover may not be empty.");
         }
-        if (cover.getInputLength() != cube.getInputLength()) {
+        if (originalCover.getInputLength() != cube.getInputLength()) {
             throw new IllegalArgumentException(
                     "Cover and Cube need to have the same number of input variables.");
         }
 
         this.cube = cube;
-        this.cover = cover;
-        this.diffCover = new Cover(cover.getInputLength());
+        this.originalCover = originalCover;
+        this.diffCover = new Cover(originalCover.getInputLength());
     }
 
     /**
@@ -104,8 +104,8 @@ public class BooleanMatrix {
     /**
      * @return TODO Beschreibung
      */
-    public Cover getCover() {
-        return cover;
+    public Cover getOriginalCover() {
+        return originalCover;
     }
 
     // TODO: Nur für Testausgaben -> RAUS

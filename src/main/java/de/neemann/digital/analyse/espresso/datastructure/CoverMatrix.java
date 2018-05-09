@@ -30,7 +30,7 @@ public class CoverMatrix extends BooleanMatrix {
             }
 
             // Save the difference Cubes in the difference Cover
-            this.getDiffCover().addCube(new Cube(row, ThreeStateValue.one));
+            this.diffCover.addCube(new Cube(row, ThreeStateValue.one));
         }
     }
 
@@ -44,11 +44,10 @@ public class CoverMatrix extends BooleanMatrix {
      * @return Difference between the variable values
      */
     private boolean generateDistanceElement(int cubeIndex, int inputIndex) {
-        ThreeStateValue coverInputState = getCover().getCube(cubeIndex).getState(inputIndex);
+        ThreeStateValue coverInputState = getOriginalCover().getCube(cubeIndex).getState(inputIndex);
         ThreeStateValue cubeInputState = getCube().getState(inputIndex);
 
         return (cubeInputState == ThreeStateValue.one && coverInputState != ThreeStateValue.one)
-                || (cubeInputState == ThreeStateValue.zero
-                        && coverInputState != ThreeStateValue.zero);
+                || (cubeInputState == ThreeStateValue.zero && coverInputState != ThreeStateValue.zero);
     }
 }

@@ -48,7 +48,7 @@ public class Cube {
      *            Origin cube to copy
      */
     public Cube(Cube origin) {
-        this.input = origin.input;
+        this.input = Arrays.copyOf(origin.input, origin.input.length);
         this.output = origin.output;
     }
 
@@ -85,6 +85,10 @@ public class Cube {
         return this.input.length;
     }
 
+    public ThreeStateValue[] getInput() {
+        return input;
+    }
+
     /**
      * Get the state of the variable at position 'index'
      * @param index
@@ -93,6 +97,16 @@ public class Cube {
      */
     public ThreeStateValue getState(int index) {
         return input[index];
+    }
+
+
+    /**
+     * TODO Beschreibung
+     * @param index
+     * @param newState
+     */
+    public void setState(int index, ThreeStateValue newState) {
+        this.input[index] = newState;
     }
 
     /**

@@ -9,6 +9,7 @@ import de.neemann.digital.analyse.quinemc.BoolTable;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 import de.neemann.digital.gui.components.table.ExpressionListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -169,23 +170,51 @@ public class Simplify implements MinimizerInterface {
                 int countUse = 0;
                 tempCofactor = new Cover(cofactor.getInputLength());
 
-                DifferenceMatrix differenceMatrix = new DifferenceMatrix(inputCofactor, inputCofactor.getCube(i));
+                Cube currentCube = inputCofactor.getCube(i);
+                DifferenceMatrix differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube);
 
                 // Alle Cubes der zugehörigen Difference-Matrix durchlaufen
                 for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
-                    int rowSum = rowSum(differenceMatrix.getDiffCover().getCube(j));
+                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j);
+                    int rowSum = rowSum(currentDifferenceCube);
 
                     if (rowSum == 1) {
                         Cube simplifiedCube = new Cube(inputCofactor.getCube(j));
-                        Cube diffCube = differenceMatrix.getDiffCover().getCube(j);
-                        int index = Arrays.asList(diffCube.getInput()).indexOf(ThreeStateValue.one);
 
-                        simplifiedCube.setState(index , ThreeStateValue.dontCare);
+                        Cube diffCube = differenceMatrix.getDiffCover().getCube(j);
+                        int indexNewDC = Arrays.asList(diffCube.getInput()).indexOf(ThreeStateValue.one);
+
+                        simplifiedCube.setState(indexNewDC , ThreeStateValue.dontCare);
                         tempCofactor.addCube(simplifiedCube);
                         countUse++;
 
-                    } else if (rowSum != 0){
-                        tempCofactor.addCube(inputCofactor.getCube(j));
+                    } else if (rowSum > 1){
+
+                        // TODO prüfen
+
+//                        List<Integer> indexNewDC = new ArrayList<Integer>();
+//
+//                        for(int k = 0; k < currentCube.getInputLength(); k++){
+//
+//                            if(currentCube.getState(k) != ThreeStateValue.dontCare) {
+//                                if (currentDifferenceCube.getState(k) == ThreeStateValue.one) {
+//                                    indexNewDC.add(k);
+//                                }
+//                            }
+//                        }
+//
+//                        if (indexNewDC.size() == 1) {
+//
+//                            tempCofactor.addCube(currentCube);
+//
+//                            Cube modifiedCube = inputCofactor.getCube(j);
+//                            modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
+//
+//                            tempCofactor.addCube(modifiedCube);
+//
+//                        } else {
+                            tempCofactor.addCube(inputCofactor.getCube(j));
+//                        }
                     }
                 }
 
@@ -195,7 +224,7 @@ public class Simplify implements MinimizerInterface {
 
                 inputCofactor = tempCofactor;
             }
-            //TODO: out: System.out.println("Zwischenschritt Simplified Cofactor: \n" + inputCofactor);
+            //System.out.println("Zwischenschritt Simplified Cofactor: \n" + inputCofactor);
 
         } while (inputCofactorSize != inputCofactor.size());
 

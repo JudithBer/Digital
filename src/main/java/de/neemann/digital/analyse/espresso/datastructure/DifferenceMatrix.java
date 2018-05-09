@@ -28,6 +28,12 @@ public class DifferenceMatrix extends BooleanMatrix {
         }
     }
 
+    /**
+     * TODO: Prüfen, ob verwendet
+     * @param originalCover
+     * @param cube
+     * @param containment
+     */
     public DifferenceMatrix(Cover originalCover, Cube cube, boolean containment) {
         super(originalCover, cube);
 

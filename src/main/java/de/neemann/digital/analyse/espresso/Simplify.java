@@ -24,12 +24,12 @@ public class Simplify implements MinimizerInterface {
             System.out.println("Binate:" + binate + "\n");
 
         Cover cofactorBinate = generateCofactor(inputCover, ThreeStateValue.one, binate);
-            System.out.println("Cofactor Binate: \n" + cofactorBinate);
+//            System.out.println("Cofactor Binate: \n" + cofactorBinate);
         Cover cofactorAntiBinate = generateCofactor(inputCover, ThreeStateValue.zero, binate);
             System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
         Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate);
-            System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
+//            System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
         Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate);
             System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
@@ -167,14 +167,17 @@ public class Simplify implements MinimizerInterface {
             // Alle Cubes durchlaufen
             for (int i = 0; i < inputCofactor.size(); i++) {
 
+
+
                 int countUse = 0;
                 tempCofactor = new Cover(cofactor.getInputLength());
 
-                Cube currentCube = inputCofactor.getCube(i);
+                Cube currentCube = inputCofactor.getCube(0); // 0-ter da akteller am Ende immer hinten angehängt wird und danach mit dem nächsten, also wieder 0-ten weiter gemacht werden muss
                 DifferenceMatrix differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube);
 
-                // Alle Cubes der zugehörigen Difference-Matrix durchlaufen
+                // Mit allen Cubes vergleichen - Alle Cubes der zugehörigen Difference-Matrix durchlaufen
                 for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
+
                     Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j);
                     int rowSum = rowSum(currentDifferenceCube);
 
@@ -192,34 +195,42 @@ public class Simplify implements MinimizerInterface {
 
                         // TODO prüfen
 
-//                        List<Integer> indexNewDC = new ArrayList<Integer>();
-//
-//                        for(int k = 0; k < currentCube.getInputLength(); k++){
-//
-//                            if(currentCube.getState(k) != ThreeStateValue.dontCare) {
-//                                if (currentDifferenceCube.getState(k) == ThreeStateValue.one) {
-//                                    indexNewDC.add(k);
-//                                }
-//                            }
-//                        }
-//
-//                        if (indexNewDC.size() == 1) {
-//
-//                            tempCofactor.addCube(currentCube);
-//
-//                            Cube modifiedCube = inputCofactor.getCube(j);
-//                            modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
-//
-//                            tempCofactor.addCube(modifiedCube);
-//
-//                        } else {
+                        List<Integer> indexNewDC = new ArrayList<Integer>();
+                        boolean expandable = true;
+
+                        for(int k = 0; k < currentCube.getInputLength() && expandable; k++){
+
+                            // Cube durchlaufen und alle Stellen mit Unterschied zwischen den Cubes betrachten
+                            if(currentDifferenceCube.getState(k) == ThreeStateValue.one) {
+
+                                if ((currentCube.getState(k) == ThreeStateValue.zero
+                                            && inputCofactor.getCube(j).getState(k) == ThreeStateValue.one)
+                                        || (currentCube.getState(k) == ThreeStateValue.one
+                                            && inputCofactor.getCube(j).getState(k) == ThreeStateValue.zero)) {
+                                    indexNewDC.add(k);
+                                } else if (inputCofactor.getCube(j).getState(k) != ThreeStateValue.dontCare) {
+                                    expandable = false;
+                                }
+                            }
+                        }
+
+                        if (indexNewDC.size() == 1 && expandable) {
+
                             tempCofactor.addCube(inputCofactor.getCube(j));
-//                        }
+
+                            Cube modifiedCube = currentCube;
+                            modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
+
+                            tempCofactor.addCube(modifiedCube);
+
+                        } else {
+                            tempCofactor.addCube(inputCofactor.getCube(j));
+                        }
                     }
                 }
 
                 if(countUse == 0) {
-                    tempCofactor.addCube(inputCofactor.getCube(i));
+                    tempCofactor.addCube(currentCube);
                 }
 
                 inputCofactor = tempCofactor;
@@ -257,7 +268,7 @@ public class Simplify implements MinimizerInterface {
         Cover result = new Cover(simpleCofactor.getInputLength());
 
         for (int i = 0; i < simpleCofactor.size(); i++) {
-            Cube currentCube = simpleCofactor.getCube(i);
+            Cube currentCube = new Cube (simpleCofactor.getCube(i));
 
             if(containedOppositeCofactor(simpleAntiCofactor, currentCube)) {
                 currentCube.setState(binate, ThreeStateValue.dontCare);
@@ -269,7 +280,7 @@ public class Simplify implements MinimizerInterface {
         }
 
         for (int j = 0; j < simpleAntiCofactor.size(); j++) {
-            Cube currentCube = simpleAntiCofactor.getCube(j);
+            Cube currentCube = new Cube(simpleAntiCofactor.getCube(j));
 
             if(containedOppositeCofactor(simpleCofactor, currentCube)) {
                 currentCube.setState(binate, ThreeStateValue.dontCare);
@@ -294,7 +305,7 @@ public class Simplify implements MinimizerInterface {
         Cover diffCover =  new DifferenceMatrix(oppositeCofactor, cube, true).getDiffCover();
 
         for(int i = 0; i < diffCover.size(); i++){
-            if(Arrays.asList(diffCover.getCube(i)).contains(ThreeStateValue.one)) {
+            if(!Arrays.asList(diffCover.getCube(i)).contains(ThreeStateValue.one)) {
                 return true;
             }
         }

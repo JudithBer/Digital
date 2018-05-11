@@ -57,6 +57,10 @@ public class Simplify implements MinimizerInterface {
         Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate);
         Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate);
 
+        Cover simplifiedCover = mergeWithContainment(
+                simplifiedCofactorBinate,
+                simplifiedCofactorAntiBinate,
+                binate);
 
     }
 
@@ -305,7 +309,7 @@ public class Simplify implements MinimizerInterface {
         Cover diffCover =  new DifferenceMatrix(oppositeCofactor, cube, true).getDiffCover();
 
         for(int i = 0; i < diffCover.size(); i++){
-            if(!Arrays.asList(diffCover.getCube(i)).contains(ThreeStateValue.one)) {
+            if(!diffCover.getCube(i).inputContains(ThreeStateValue.one)) {
                 return true;
             }
         }

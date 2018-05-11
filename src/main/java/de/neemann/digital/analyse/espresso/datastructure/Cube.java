@@ -75,6 +75,20 @@ public class Cube {
         return cubePCN;
     }
 
+    /**
+     * TODO Beschreibung
+     * @param state
+     * @return
+     */
+    public boolean inputContains(ThreeStateValue state) {
+        for(int i = 0; i < input.length; i++) {
+            if (input[i] == state) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Getter of the Cube attributes
 
     /**

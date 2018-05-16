@@ -15,7 +15,10 @@ import java.util.List;
 
 public class Simplify implements MinimizerInterface {
 
-
+    /**
+     * TODO Beschreibung
+     * @param input
+     */
     public void minimizeCover(Cover input){
         Cover inputCover = input;
             System.out.println("Input Cover: \n" + inputCover);
@@ -24,12 +27,12 @@ public class Simplify implements MinimizerInterface {
             System.out.println("Binate:" + binate + "\n");
 
         Cover cofactorBinate = generateCofactor(inputCover, ThreeStateValue.one, binate);
-//            System.out.println("Cofactor Binate: \n" + cofactorBinate);
+            System.out.println("Cofactor Binate: \n" + cofactorBinate);
         Cover cofactorAntiBinate = generateCofactor(inputCover, ThreeStateValue.zero, binate);
             System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
         Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate);
-//            System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
+            System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
         Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate);
             System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
@@ -41,6 +44,15 @@ public class Simplify implements MinimizerInterface {
 
     }
 
+    /**
+     * TODO Beschreibung
+     * @param vars       the variables used
+     * @param boolTable  the bool table
+     * @param resultName name of the result
+     * @param listener   the listener to report the result to
+     * @throws ExpressionException
+     * @throws FormatterException
+     */
     @Override
     public void minimize(List<Variable> vars, BoolTable boolTable, String resultName, ExpressionListener listener) throws ExpressionException, FormatterException {
 

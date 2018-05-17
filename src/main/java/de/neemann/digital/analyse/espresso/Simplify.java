@@ -14,10 +14,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The Simplify Algorithm to minimize logical functions.
+ * @author Annika Keil, Judith Berthold
+ *
+ */
 public class Simplify implements MinimizerInterface {
 
     /**
-     * TODO Beschreibung
+     * TODO rausnehmen, da nur für eigene Main
      * @param input
      */
     public void minimizeCover(Cover input){
@@ -99,9 +104,9 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     * TODO Beschreibung
-     * @param input
-     * @return
+     * Method to select most Binate column (column with most DCs)
+     * @param input Cover to search for Binate variable 
+     * @return Column of the Cover which ist most Binate
      */
     private int selectBinate(Cover input) {
 
@@ -165,10 +170,10 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     *
-     * @param input
+     * Method to generate the Cofactor of a Cover
+     * @param input Input-Cover to generate the Cofacter of it
      * @param state ThreeStateValue.ZERO or ThreeStateValue.ONE (never ThreeStateValue.DC)
-     * @param binate
+     * @param binate Column of the Cover which is most Binate
      * @return
      */
     private Cover generateCofactor(Cover input, ThreeStateValue state, int binate) {
@@ -203,9 +208,9 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     * TODO: Beschreibung
-     * @param cofactor
-     * @return
+     * Method to simplify the given Cofactor
+     * @param cofactor which need to be simplified.
+     * @return simplified Cofactor
      */
     private Cover simplifyCofactor(Cover cofactor) {
         Cover inputCofactor = cofactor;
@@ -294,9 +299,9 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     * TODO Beschreibung
-     * @param cube
-     * @return
+     * Calculates the Sum of the given Cube (every TSV.one increments the rowSum)
+     * @param cube Cube of which the Sum should be calculated
+     * @return Sum of the Cube
      */
     private int rowSum(Cube cube) {
         int rowSum = 0;

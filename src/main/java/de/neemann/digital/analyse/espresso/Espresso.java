@@ -22,7 +22,7 @@ public final class Espresso {
     };
 
     /**
-     * @return TODO Beschreibung
+     * @return Instance of espresso
      */
     public static Espresso getInstance() {
         return instance;

@@ -6,6 +6,7 @@ import de.neemann.digital.analyse.expression.ExpressionException;
 import de.neemann.digital.analyse.expression.Variable;
 import de.neemann.digital.analyse.expression.format.FormatterException;
 import de.neemann.digital.analyse.quinemc.BoolTable;
+import de.neemann.digital.analyse.quinemc.BoolTableByteArray;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 import de.neemann.digital.gui.components.table.ExpressionListener;
 
@@ -56,23 +57,44 @@ public class Simplify implements MinimizerInterface {
     @Override
     public void minimize(List<Variable> vars, BoolTable boolTable, String resultName, ExpressionListener listener) throws ExpressionException, FormatterException {
 
+        if (vars == null || vars.size() == 0) {
+            throw new FormatterException("Count of vars have to be initialized and greater than 0");
+        }
+        if (boolTable == null || boolTable.size() == 0) {
+            throw new FormatterException(
+                    "BoolTable have to be initialized and the Arraylist need to be greater than 0");
+        }
+
         int inputLength = vars.size();
 
-        BoolTableTSVArray input = (BoolTableTSVArray) boolTable;
+
+
+        BoolTableTSVArray input = new BoolTableTSVArray((BoolTableByteArray) boolTable);
+        //System.out.println(input);
+
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);
+            System.out.println("Cover: \n" + cover);
 
         int binate = selectBinate(cover);
+            System.out.println("Binate: " + binate);
 
         Cover cofactorBinate = generateCofactor(cover, ThreeStateValue.one, binate);
+            System.out.println("Cofactor Binate: \n" + cofactorBinate);
         Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate);
+            System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
         Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate);
+            System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
         Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate);
+            System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
         Cover simplifiedCover = mergeWithContainment(
                 simplifiedCofactorBinate,
                 simplifiedCofactorAntiBinate,
                 binate);
+            System.out.println("END - Simplified Cover: \n" + simplifiedCover);
+
+        //TODO Listener eine Antwort geben
 
     }
 
@@ -110,18 +132,31 @@ public class Simplify implements MinimizerInterface {
 
         int binate = 0;
 
-        int minAt = -1;
-        int min = input.size();
+
+        int minDCAt = -1;
+        int minDCAmount = input.size();
+
+        int minDiffAt = -1;
+        int minDiffAmount = input.size();
 
         for (int l = 0; l < dcs.length; l++) {
-            if(dcs[l] < min) {
-                minAt = l;
-                min = dcs[l];
+            if(dcs[l] != 0 && dcs[l] < minDCAmount) {
+                minDCAt = l;
+                minDCAmount = dcs[l];
+            } else if(minDCAt == -1
+                    && zeros[l] != 0
+                    && ones[l] != 0
+                    && Math.abs(zeros[l]-ones[l]) < minDiffAmount
+                    ) {
+                minDiffAt = l;
+                minDiffAmount = Math.abs(zeros[l]-ones[l]);
             }
         }
 
-        if(minAt != -1) {
-            binate = minAt;
+        if(minDCAt != -1) {
+            binate = minDCAt;
+        } else if (minDiffAt != -1) {
+            binate = minDiffAt;
         }
 
         // TODO: Gleichgewicht der 0er und 1er prüfen
@@ -148,8 +183,8 @@ public class Simplify implements MinimizerInterface {
                 antiState = ThreeStateValue.zero;
                 break;
         }
-        System.out.println("State: " + state);
-        System.out.println("Antistate: " + antiState);
+//        System.out.println("State: " + state);
+//        System.out.println("Antistate: " + antiState);
 
         Cover cofactor = new Cover(input.getInputLength());
 

@@ -1,5 +1,6 @@
 package de.neemann.digital.analyse.espresso.datastructure;
 
+import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 public class DifferenceMatrix extends BooleanMatrix {
@@ -10,7 +11,7 @@ public class DifferenceMatrix extends BooleanMatrix {
      * @param originalCover TODO Beschreibung
      * @param cube
      */
-    public DifferenceMatrix(Cover originalCover, Cube cube) {
+    public DifferenceMatrix(Cover originalCover, Cube cube) throws EmptyCoverException {
         super(originalCover, cube);
 
         // Calculate the difference Cover between the considered cube and the cubes of the cover
@@ -34,7 +35,7 @@ public class DifferenceMatrix extends BooleanMatrix {
      * @param cube
      * @param containment
      */
-    public DifferenceMatrix(Cover originalCover, Cube cube, boolean containment) {
+    public DifferenceMatrix(Cover originalCover, Cube cube, boolean containment) throws EmptyCoverException{
         super(originalCover, cube);
 
         // Calculate the difference Cover between the considered cube and the cubes of the cover

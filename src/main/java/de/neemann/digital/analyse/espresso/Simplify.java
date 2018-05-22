@@ -2,6 +2,7 @@ package de.neemann.digital.analyse.espresso;
 
 import de.neemann.digital.analyse.MinimizerInterface;
 import de.neemann.digital.analyse.espresso.datastructure.*;
+import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.expression.Expression;
 import de.neemann.digital.analyse.expression.ExpressionException;
 import de.neemann.digital.analyse.expression.Variable;
@@ -240,7 +241,13 @@ public class Simplify implements MinimizerInterface {
                 tempCofactor = new Cover(cofactor.getInputLength());
 
                 Cube currentCube = inputCofactor.getCube(0); // 0-ter da akteller am Ende immer hinten angehängt wird und danach mit dem nächsten, also wieder 0-ten weiter gemacht werden muss
-                DifferenceMatrix differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube);
+                DifferenceMatrix differenceMatrix = null;
+                try {
+                    differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube);
+                } catch (EmptyCoverException e) {
+                    // TODO inputCofactor leer -> was tun? wo prüfen?
+                    e.printStackTrace();
+                }
 
                 // Mit allen Cubes vergleichen - Alle Cubes der zugehörigen Difference-Matrix durchlaufen
                 for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
@@ -343,7 +350,9 @@ public class Simplify implements MinimizerInterface {
                 currentCube.setState(binate, ThreeStateValue.one);
             }
 
-            result.addCube(currentCube);
+            if(!result.contains(currentCube)){
+                result.addCube(currentCube);
+            }
         }
 
         for (int j = 0; j < simpleAntiCofactor.size(); j++) {
@@ -355,7 +364,9 @@ public class Simplify implements MinimizerInterface {
                 currentCube.setState(binate, ThreeStateValue.zero);
             }
 
-            result.addCube(currentCube);
+            if(!result.contains(currentCube)){
+                result.addCube(currentCube);
+            }
         }
 
 
@@ -369,7 +380,13 @@ public class Simplify implements MinimizerInterface {
      * @return
      */
     private boolean containedOppositeCofactor(Cover oppositeCofactor, Cube cube) {
-        Cover diffCover =  new DifferenceMatrix(oppositeCofactor, cube, true).getDiffCover();
+        DifferenceMatrix differenceMatrix = null;
+        try {
+            differenceMatrix = new DifferenceMatrix(oppositeCofactor, cube, true);
+        } catch (EmptyCoverException e) {
+            return false;
+        }
+        Cover diffCover = differenceMatrix.getDiffCover();
 
         for(int i = 0; i < diffCover.size(); i++){
             if(!diffCover.getCube(i).inputContains(ThreeStateValue.one)) {

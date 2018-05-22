@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 /**
@@ -26,10 +27,10 @@ public class BooleanMatrix {
      * @param cube
      *            TODO Beschreibung
      */
-    public BooleanMatrix(Cover originalCover, Cube cube) {
+    public BooleanMatrix(Cover originalCover, Cube cube) throws EmptyCoverException {
         // Validate the input parameters
         if (originalCover.size() == 0) {
-            throw new IllegalArgumentException("Cover may not be empty.");
+            throw new EmptyCoverException("Cover may not be empty.");
         }
         if (originalCover.getInputLength() != cube.getInputLength()) {
             throw new IllegalArgumentException(

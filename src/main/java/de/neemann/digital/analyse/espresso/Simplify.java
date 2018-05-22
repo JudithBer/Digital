@@ -2,8 +2,10 @@ package de.neemann.digital.analyse.espresso;
 
 import de.neemann.digital.analyse.MinimizerInterface;
 import de.neemann.digital.analyse.espresso.datastructure.*;
+import de.neemann.digital.analyse.expression.Expression;
 import de.neemann.digital.analyse.expression.ExpressionException;
 import de.neemann.digital.analyse.expression.Variable;
+import de.neemann.digital.analyse.expression.format.FormatToExpression;
 import de.neemann.digital.analyse.expression.format.FormatterException;
 import de.neemann.digital.analyse.quinemc.BoolTable;
 import de.neemann.digital.analyse.quinemc.BoolTableByteArray;
@@ -13,6 +15,10 @@ import de.neemann.digital.gui.components.table.ExpressionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static de.neemann.digital.analyse.expression.Not.not;
+import static de.neemann.digital.analyse.expression.Operation.and;
+import static de.neemann.digital.analyse.expression.Operation.or;
 
 /**
  * The Simplify Algorithm to minimize logical functions.
@@ -25,7 +31,7 @@ public class Simplify implements MinimizerInterface {
      * TODO rausnehmen, da nur für eigene Main
      * @param input
      */
-    public void minimizeCover(Cover input){
+    public void minimizeCover(List<Variable> vars, String resultName,Cover input){
         Cover inputCover = input;
             System.out.println("Input Cover: \n" + inputCover);
 
@@ -47,6 +53,10 @@ public class Simplify implements MinimizerInterface {
                 simplifiedCofactorAntiBinate,
                 binate);
             System.out.println("END - Simplified Cover: \n" + simplifiedCover);
+
+        Expression e = getExpression(vars, simplifiedCover);
+        System.out.println("Expression: " + e); //FormatToExpression.FORMATTER_JAVA.format(e));
+        //listener.resultFound(resultName, e);
 
     }
 
@@ -99,13 +109,14 @@ public class Simplify implements MinimizerInterface {
                 binate);
             System.out.println("END - Simplified Cover: \n" + simplifiedCover);
 
-        //TODO Listener eine Antwort geben
-
+        Expression e = getExpression(vars, simplifiedCover);
+        System.out.println("Expression: " + e);//FormatToExpression.FORMATTER_JAVA.format(e));
+        listener.resultFound(resultName, e);
     }
 
     /**
      * Method to select most Binate column (column with most DCs)
-     * @param input Cover to search for Binate variable 
+     * @param input Cover to search for Binate variable
      * @return Column of the Cover which ist most Binate
      */
     private int selectBinate(Cover input) {
@@ -368,4 +379,64 @@ public class Simplify implements MinimizerInterface {
 
         return false;
     }
+
+    /**
+     * TODO Beschreibung
+     * @param vars
+     * @param simplifiedCover
+     * @return
+     */
+    private Expression getExpression(List<Variable> vars, Cover simplifiedCover) {
+        // TODO Prüfung ob Cover leer oder voll oder so s. QuineMcCluskey Constant.Zero/.One
+
+        Cube currentCube;
+        int inputLength = simplifiedCover.getInputLength();
+        Expression expression = null;
+
+        for (int i = 0; i < simplifiedCover.size(); i++) {
+            currentCube = simplifiedCover.getCube(i);
+            Expression cubeExpression = getTermExpression(vars, currentCube);
+
+            if(cubeExpression == null) {
+                continue;
+            }
+
+            if (expression == null)
+                expression = cubeExpression;
+            else
+                expression = or(expression, cubeExpression);
+        }
+
+        return expression;
+    }
+
+    private Expression getTermExpression(List<Variable> vars, Cube cube) {
+        Expression cubeExpression = null;
+
+        for (int j = 0; j < cube.getInputLength(); j++) {
+            Expression term = null;
+
+            switch (cube.getState(j)){
+                case dontCare:
+                    break;
+                case zero:
+                    term = not(vars.get(j));
+                    break;
+                case one:
+                    term = vars.get(j);
+                    break;
+            }
+
+            if(term == null) {
+                continue;
+            } else if (cubeExpression == null) {
+                cubeExpression = term;
+            } else {
+                cubeExpression = and(cubeExpression, term);
+            }
+        }
+
+        return cubeExpression;
+    }
+
 }

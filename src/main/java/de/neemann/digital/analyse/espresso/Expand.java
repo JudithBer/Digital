@@ -2,6 +2,7 @@ package de.neemann.digital.analyse.espresso;
 
 import java.util.*;
 
+import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 import de.neemann.digital.analyse.espresso.datastructure.*;
 
@@ -60,8 +61,20 @@ public final class Expand {
      * @return A Pair with the expanded Cube and a List of the indexes of the covered Cubes
      */
     public static Pair<Cube, List<Integer>> cubeExpand(Cube cube, Cover onSet, Cover offSet) {
-        BlockMatrix blockMatrix = new BlockMatrix(offSet, cube);
-        CoverMatrix coverMatrix = new CoverMatrix(onSet, cube);
+        BlockMatrix blockMatrix = null;
+        try {
+            blockMatrix = new BlockMatrix(offSet, cube);
+        } catch (EmptyCoverException e) {
+            // TODO
+            e.printStackTrace();
+        }
+        CoverMatrix coverMatrix = null;
+        try {
+            coverMatrix = new CoverMatrix(onSet, cube);
+        } catch (EmptyCoverException e) {
+            //TODO
+            e.printStackTrace();
+        }
         System.out.println("Blocking Matrix: \n" + blockMatrix);
 
         Set<Integer> loweringSet = new HashSet<>();

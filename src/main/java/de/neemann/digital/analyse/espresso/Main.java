@@ -2,7 +2,14 @@ package de.neemann.digital.analyse.espresso;
 
 import de.neemann.digital.analyse.espresso.datastructure.Cover;
 import de.neemann.digital.analyse.espresso.datastructure.Cube;
+import de.neemann.digital.analyse.expression.Variable;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
+import static de.neemann.digital.analyse.expression.Variable.v;
 
 public class Main {
 
@@ -10,7 +17,16 @@ public class Main {
 
         Cover test1 = test1();
         Simplify testSimplify = new Simplify();
-        testSimplify.minimizeCover(test1);
+        List<Variable> vars= new ArrayList<Variable>() {{
+            add(v("A"));
+            add(v("B"));
+            add(v("C"));
+            add(v("D"));
+            add(v("E"));
+            add(v("F"));
+            }};
+        String resultName = "test";
+        testSimplify.minimizeCover(vars, resultName,test1);
     }
 
 

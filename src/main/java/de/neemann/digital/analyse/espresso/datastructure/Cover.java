@@ -1,5 +1,6 @@
 package de.neemann.digital.analyse.espresso.datastructure;
 
+import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 import java.util.ArrayList;
@@ -176,4 +177,30 @@ public class Cover implements Iterable<Cube> {
         return result;
     }
 
+    public boolean contains(Cube cube) {
+        try {
+            Cover differenceCover = new DifferenceMatrix(this, cube).getDiffCover();
+            int inputLenght = differenceCover.getInputLength();
+
+            // Alle Cubes der DiffMatrix durchgehen
+            for (int i = 0; i < differenceCover.size(); i++) {
+                int rowSum = 0;
+                Cube currentCube = differenceCover.getCube(i);
+
+                for (int j = 0; j < inputLenght; j++) {
+                    if(currentCube.getState(j) == ThreeStateValue.one)
+                        rowSum++;
+                }
+
+                if (rowSum == 0){
+                    return true;
+                }
+            }
+
+        } catch (EmptyCoverException e) {
+            return false;
+        }
+
+        return false;
+    }
 }

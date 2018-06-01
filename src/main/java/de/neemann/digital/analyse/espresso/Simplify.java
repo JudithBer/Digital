@@ -6,7 +6,6 @@ import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.expression.Expression;
 import de.neemann.digital.analyse.expression.ExpressionException;
 import de.neemann.digital.analyse.expression.Variable;
-import de.neemann.digital.analyse.expression.format.FormatToExpression;
 import de.neemann.digital.analyse.expression.format.FormatterException;
 import de.neemann.digital.analyse.quinemc.BoolTable;
 import de.neemann.digital.analyse.quinemc.BoolTableByteArray;
@@ -15,6 +14,7 @@ import de.neemann.digital.gui.components.table.ExpressionListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static de.neemann.digital.analyse.expression.Not.not;
@@ -31,10 +31,12 @@ public class Simplify implements MinimizerInterface {
     /**
      * TODO rausnehmen, da nur für eigene Main
      * @param input
-     */
+
     public void minimizeCover(List<Variable> vars, String resultName,Cover input){
         Cover inputCover = input;
             System.out.println("Input Cover: \n" + inputCover);
+        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
+            System.out.println("Offset: \n" + cover);
 
         int binate = selectBinate(inputCover);
             System.out.println("Binate:" + binate + "\n");
@@ -44,9 +46,9 @@ public class Simplify implements MinimizerInterface {
         Cover cofactorAntiBinate = generateCofactor(inputCover, ThreeStateValue.zero, binate);
             System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
-        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate);
+        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset);
             System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
-        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate);
+        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset);
             System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
         Cover simplifiedCover = mergeWithContainment(
@@ -60,6 +62,7 @@ public class Simplify implements MinimizerInterface {
         //listener.resultFound(resultName, e);
 
     }
+    */
 
     /**
      * TODO Beschreibung
@@ -81,15 +84,18 @@ public class Simplify implements MinimizerInterface {
                     "BoolTable have to be initialized and the Arraylist need to be greater than 0");
         }
 
+        // Reihenfolge der Variablen ändern
+        //Collections.reverse(vars);
+
         int inputLength = vars.size();
-
-
 
         BoolTableTSVArray input = new BoolTableTSVArray((BoolTableByteArray) boolTable);
         //System.out.println(input);
 
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);
             System.out.println("Cover: \n" + cover);
+        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
+            System.out.println("Offset: \n" + offset);
 
         int binate = selectBinate(cover);
             System.out.println("Binate: " + binate);
@@ -99,9 +105,9 @@ public class Simplify implements MinimizerInterface {
         Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate);
             System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
-        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate);
+        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset);
             System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
-        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate);
+        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset);
             System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
         Cover simplifiedCover = mergeWithContainment(
@@ -149,7 +155,6 @@ public class Simplify implements MinimizerInterface {
 
         int binate = 0;
 
-
         int minDCAt = -1;
         int minDCAmount = input.size();
 
@@ -175,8 +180,6 @@ public class Simplify implements MinimizerInterface {
         } else if (minDiffAt != -1) {
             binate = minDiffAt;
         }
-
-        // TODO: Gleichgewicht der 0er und 1er prüfen
 
         return binate;
     }
@@ -222,25 +225,28 @@ public class Simplify implements MinimizerInterface {
     /**
      * Method to simplify the given Cofactor
      * @param cofactor which need to be simplified.
+     * @param offset Offset of the original function
      * @return simplified Cofactor
      */
-    private Cover simplifyCofactor(Cover cofactor) {
-        Cover inputCofactor = cofactor;
-        Cover tempCofactor;
-        int inputCofactorSize;
+    private Cover simplifyCofactor(Cover cofactor, Cover offset) {
+
+        Cover inputCofactor = cofactor; // zu vereinfachender Cofactor
+        Cover tempCofactor; // temporares Cover während der Vereinfachung mit den teil-vereinfachten Cubes
+        int inputCofactorSize; // anzahl der Input-Variablen
 
         do {
-             inputCofactorSize = inputCofactor.size();
+             inputCofactorSize = inputCofactor.size(); // Anzahl der Cubes im Cofactor
 
-            // Alle Cubes durchlaufen
+            // Alle Cubes durchlaufen und vereinfachen
             for (int i = 0; i < inputCofactor.size(); i++) {
 
-
-
-                int countUse = 0;
-                tempCofactor = new Cover(cofactor.getInputLength());
+                int countUse = 0; // Anzahl wie oft mit anderem Cube vereinfacht werden konnte
+                tempCofactor = new Cover(cofactor.getInputLength()); // Initialisieren
 
                 Cube currentCube = inputCofactor.getCube(0); // 0-ter da akteller am Ende immer hinten angehängt wird und danach mit dem nächsten, also wieder 0-ten weiter gemacht werden muss
+
+                //DifferenceMatrix stellt die Unterschiede zwischen dem currentCube
+                // und allen Cubes des Cofactor-Covers [One, wenn nicht die gleichen States]
                 DifferenceMatrix differenceMatrix = null;
                 try {
                     differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube);
@@ -252,37 +258,47 @@ public class Simplify implements MinimizerInterface {
                 // Mit allen Cubes vergleichen - Alle Cubes der zugehörigen Difference-Matrix durchlaufen
                 for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
 
-                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j);
-                    int rowSum = rowSum(currentDifferenceCube);
+                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j); // Difference Matrix des aktuell betrachteten Cubes
+                    int rowSum = rowSum(currentDifferenceCube); // Anzahl der Unterschiede zwischen Cube und Cofactor-Cube
 
+                    // Wenn nur ein Unterschied -> Entsprechende Stelle DC setzen
                     if (rowSum == 1) {
                         Cube simplifiedCube = new Cube(inputCofactor.getCube(j));
 
+                        //Index des Unterschiedes finden
                         Cube diffCube = differenceMatrix.getDiffCover().getCube(j);
                         int indexNewDC = Arrays.asList(diffCube.getInput()).indexOf(ThreeStateValue.one);
 
+                        // Entsprechenden Index DC setzen
                         simplifiedCube.setState(indexNewDC , ThreeStateValue.dontCare);
+
+                        // Geänderten Cube in tempCofactor
                         tempCofactor.addCube(simplifiedCube);
+                        // Verwendung notieren
                         countUse++;
 
-                    } else if (rowSum > 1){
-
-                        // TODO prüfen
+                    } else if (rowSum > 1){ // Wenn mehr als eine Position unterschiedlich
 
                         List<Integer> indexNewDC = new ArrayList<Integer>();
                         boolean expandable = true;
 
+                        // Cube durchlaufen und alle Stellen mit Unterschied zwischen den Cubes betrachten
                         for(int k = 0; k < currentCube.getInputLength() && expandable; k++){
 
-                            // Cube durchlaufen und alle Stellen mit Unterschied zwischen den Cubes betrachten
                             if(currentDifferenceCube.getState(k) == ThreeStateValue.one) {
 
                                 if ((currentCube.getState(k) == ThreeStateValue.zero
                                             && inputCofactor.getCube(j).getState(k) == ThreeStateValue.one)
                                         || (currentCube.getState(k) == ThreeStateValue.one
                                             && inputCofactor.getCube(j).getState(k) == ThreeStateValue.zero)) {
-                                    indexNewDC.add(k);
+
+                                        indexNewDC.add(k);
+                                        countUse++;
+
+                                        // TODO countUse überall richtig hochgesetzt?
+
                                 } else if (inputCofactor.getCube(j).getState(k) != ThreeStateValue.dontCare) {
+                                    // wir ändern nur uns, daher keine offset prüfung für diese Stelle notwendig - TODO Kommentar raus
                                     expandable = false;
                                 }
                             }
@@ -295,7 +311,9 @@ public class Simplify implements MinimizerInterface {
                             Cube modifiedCube = currentCube;
                             modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
 
-                            tempCofactor.addCube(modifiedCube);
+                            if(!checkOffset(offset, currentCube, indexNewDC.get(0))) {
+                                tempCofactor.addCube(modifiedCube);
+                            }
 
                         } else {
                             tempCofactor.addCube(inputCofactor.getCube(j));
@@ -317,6 +335,46 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
+     * TODO sonstige Kommentare
+     * Checks if the cube is contained in the offset (in conflict with the offset)
+     * @param offset
+     * @param cube
+     * @param index
+     * @return
+     */
+    private boolean checkOffset(Cover offset, Cube cube, int index) {
+        boolean containedInOffset = false;
+        Cover differenceCover;
+
+        //Prüfen, dass Anitstate nicht in Offset
+        Cube antiCube = new Cube(cube);
+        ThreeStateValue newState;
+        if(cube.getState(index)== ThreeStateValue.one){
+            newState = ThreeStateValue.zero;
+        } else {
+            newState = ThreeStateValue.one;
+        }
+        antiCube.setState(index, newState);
+
+        try {
+            differenceCover = new DifferenceMatrix(offset, cube, 0).getDiffCover();
+        } catch (EmptyCoverException e) {
+            // If the Offset is empty, the cube couldn't be contained
+            return false;
+        }
+
+        for(int i = 0; i < differenceCover.size(); i++) {
+            if(differenceCover.getCube(i).inputContains(ThreeStateValue.one)){
+                continue;
+            } else {
+                containedInOffset = true;
+            }
+        }
+
+        return containedInOffset;
+    }
+
+    /**
      * Calculates the Sum of the given Cube (every TSV.one increments the rowSum)
      * @param cube Cube of which the Sum should be calculated
      * @return Sum of the Cube
@@ -332,7 +390,7 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     * TODO Beschreibugn
+     * TODO Beschreibung
      * @param simpleCofactor
      * @param simpleAntiCofactor
      * @param binate
@@ -374,26 +432,38 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     * TODO Beschreibung
-     * @param cube
-     * @param oppositeCofactor
+     * Checks if the cube is covered by a cube of the other cover
+     * @param cube              Cube for which the covering should be tested
+     * @param oppositeCofactor  TODO
      * @return
      */
     private boolean containedOppositeCofactor(Cover oppositeCofactor, Cube cube) {
-        DifferenceMatrix differenceMatrix = null;
+        DifferenceMatrix containMatrix = null;
+
+        // Calculate if the cube could be contained by the cubes of the opposite CofactorCover
+        // ZERO - no contradiction, ONE - contradition -> not possible to cover the cube 
+        // If the opposite cofactor cover is empty, the cube is not covered by it
         try {
-            differenceMatrix = new DifferenceMatrix(oppositeCofactor, cube, true);
+            containMatrix = new DifferenceMatrix(oppositeCofactor, cube, true);
         } catch (EmptyCoverException e) {
             return false;
         }
-        Cover diffCover = differenceMatrix.getDiffCover();
+        Cover containCover = containMatrix.getDiffCover();
 
-        for(int i = 0; i < diffCover.size(); i++){
-            if(!diffCover.getCube(i).inputContains(ThreeStateValue.one)) {
+        // Check for each cube of the opposite cofactor cover (or more precisely, the difference cube)
+        // if it contains the input cube
+        for(int i = 0; i < containCover.size(); i++){
+
+            // If the cube (containCube of the oppositeCofactor)contains no ONE - just ZEROs -
+            // it could be contain the input cube
+            if(!containCover.getCube(i).inputContains(ThreeStateValue.one)) {
                 return true;
             }
+
+            //TODO Prüfung in welchem Cube das DC an der gefundenen Stelle
         }
 
+        // If the cube couldn't be covered by any cube of the opposite Cofactor
         return false;
     }
 
@@ -427,6 +497,12 @@ public class Simplify implements MinimizerInterface {
         return expression;
     }
 
+    /**
+     *
+     * @param vars
+     * @param cube
+     * @return
+     */
     private Expression getTermExpression(List<Variable> vars, Cube cube) {
         Expression cubeExpression = null;
 

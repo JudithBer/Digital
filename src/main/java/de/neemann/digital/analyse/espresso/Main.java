@@ -26,7 +26,7 @@ public class Main {
             add(v("F"));
             }};
         String resultName = "test";
-        testSimplify.minimizeCover(vars, resultName,test1);
+        //testSimplify.minimizeCover(vars, resultName,test1);
     }
 
 

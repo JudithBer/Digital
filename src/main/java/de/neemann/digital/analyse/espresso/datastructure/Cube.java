@@ -76,9 +76,9 @@ public class Cube {
     }
 
     /**
-     * TODO Beschreibung
-     * @param state
-     * @return
+     * Checks if the cube contains the given state for at least one input
+     * @param state The state to check the containment
+     * @return      If the state is contained in the cube or not
      */
     public boolean inputContains(ThreeStateValue state) {
         for(int i = 0; i < input.length; i++) {

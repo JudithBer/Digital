@@ -55,6 +55,31 @@ public class DifferenceMatrix extends BooleanMatrix {
     }
 
     /**
+     * TODO: Prüfen, ob verwendet
+     * @param originalCover
+     * @param cube
+     * @param noDCconsider
+     */
+    public DifferenceMatrix(Cover originalCover, Cube cube, int noDCconsider) throws EmptyCoverException {
+        super(originalCover, cube);
+
+        // Calculate the difference Cover between the considered cube and the cubes of the cover
+        for (int i = 0; i < originalCover.size(); i++) {
+            ThreeStateValue[] row = new ThreeStateValue[cube.getInputLength()];
+
+            // Calculate the difference value for each variable value of the cube
+            for (int j = 0; j < cube.getInputLength(); j++) {
+                boolean element = generateNoDCElement(i, j);
+                row[j] = ThreeStateValue.value(element);
+            }
+
+            // Save the difference Cubes in the difference Cover
+            this.diffCover.addCube(new Cube(row, ThreeStateValue.one));
+        }
+
+    }
+
+    /**
      * Calculate the distance of the variable value of the considered cube and the cover
      *
      * @param cubeIndex
@@ -72,6 +97,12 @@ public class DifferenceMatrix extends BooleanMatrix {
                 || (cubeInputState == ThreeStateValue.dontCare && coverInputState != ThreeStateValue.dontCare);
     }
 
+    /**
+     * TODO Beschreibung
+     * @param cubeIndex
+     * @param inputIndex
+     * @return
+     */
     private boolean generateContainmentElement(int cubeIndex, int inputIndex) {
         ThreeStateValue coverInputState = getOriginalCover().getCube(cubeIndex).getState(inputIndex);
         ThreeStateValue cubeInputState = getCube().getState(inputIndex);
@@ -79,5 +110,20 @@ public class DifferenceMatrix extends BooleanMatrix {
         return (cubeInputState == ThreeStateValue.one && coverInputState == ThreeStateValue.zero)
                 || (cubeInputState == ThreeStateValue.zero && coverInputState == ThreeStateValue.one)
                 || (cubeInputState == ThreeStateValue.dontCare && coverInputState != ThreeStateValue.dontCare);
+    }
+
+    /**
+     * TODO Beschreibung
+     * @param cubeIndex
+     * @param inputIndex
+     * @return
+     */
+    private boolean generateNoDCElement(int cubeIndex, int inputIndex) {
+        ThreeStateValue coverInputState = getOriginalCover().getCube(cubeIndex).getState(inputIndex);
+        ThreeStateValue cubeInputState = getCube().getState(inputIndex);
+
+        return (cubeInputState == ThreeStateValue.one && coverInputState == ThreeStateValue.zero)
+                || (cubeInputState == ThreeStateValue.zero && coverInputState == ThreeStateValue.one)
+                || (!(cubeInputState == ThreeStateValue.dontCare));
     }
 }

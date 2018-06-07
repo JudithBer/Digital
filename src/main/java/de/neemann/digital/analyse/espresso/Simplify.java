@@ -351,7 +351,7 @@ public class Simplify implements MinimizerInterface {
         try {
             differenceCover = new DifferenceMatrix(offset, cube, "NoDcElement").getDiffCover();
         } catch (EmptyCoverException e) {
-            // If the Offset is empty, the cube couldn't be contained
+            // If the Offset is empty, the cube cannot be contained
             return false;
         }
 
@@ -439,9 +439,10 @@ public class Simplify implements MinimizerInterface {
         DifferenceMatrix containMatrix = null;
 
         // Calculate if the cube could be contained by the cubes of the opposite CofactorCover
-        // ZERO - no contradiction, ONE - contradition -> not possible to cover the cube
-        // If the opposite cofactor cover is empty, the cube is not covered by it
+        // ZERO - no contradiction, ONE - contradiction -> not possible to cover the cube
+        // If the opposite Cofactor cover is empty, the cube is not covered by it
         try {
+            //TODO:überprüfenm ob Difference Matrix wirklich korrekt implementiert ist
             containMatrix = new DifferenceMatrix(oppositeCofactor, cube, "containment");
         } catch (EmptyCoverException e) {
             return false;

@@ -28,46 +28,11 @@ import static de.neemann.digital.analyse.expression.Operation.or;
  */
 public class Simplify implements MinimizerInterface {
 
-    /**
-     * TODO rausnehmen, da nur für eigene Main
-     * @param input
-
-    public void minimizeCover(List<Variable> vars, String resultName,Cover input){
-        Cover inputCover = input;
-            System.out.println("Input Cover: \n" + inputCover);
-        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
-            System.out.println("Offset: \n" + cover);
-
-        int binate = selectBinate(inputCover);
-            System.out.println("Binate:" + binate + "\n");
-
-        Cover cofactorBinate = generateCofactor(inputCover, ThreeStateValue.one, binate);
-            System.out.println("Cofactor Binate: \n" + cofactorBinate);
-        Cover cofactorAntiBinate = generateCofactor(inputCover, ThreeStateValue.zero, binate);
-            System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
-
-        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset);
-            System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
-        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset);
-            System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
-
-        Cover simplifiedCover = mergeWithContainment(
-                simplifiedCofactorBinate,
-                simplifiedCofactorAntiBinate,
-                binate);
-            System.out.println("END - Simplified Cover: \n" + simplifiedCover);
-
-        Expression e = getExpression(vars, simplifiedCover);
-        System.out.println("Expression: " + e); //FormatToExpression.FORMATTER_JAVA.format(e));
-        //listener.resultFound(resultName, e);
-
-    }
-    */
-
+   
     /**
      * TODO Beschreibung
      * @param vars       the variables used
-     * @param boolTable  the bool table
+     * @param boolTable  the bool table of the function
      * @param resultName name of the result
      * @param listener   the listener to report the result to
      * @throws ExpressionException
@@ -77,15 +42,15 @@ public class Simplify implements MinimizerInterface {
     public void minimize(List<Variable> vars, BoolTable boolTable, String resultName, ExpressionListener listener) throws ExpressionException, FormatterException {
 
         if (vars == null || vars.size() == 0) {
-            throw new FormatterException("Count of vars have to be initialized and greater than 0");
+            throw new FormatterException("Count of vars has to be initialized and greater than 0");
         }
         if (boolTable == null || boolTable.size() == 0) {
             throw new FormatterException(
-                    "BoolTable have to be initialized and the Arraylist need to be greater than 0");
+                    "BoolTable has to be initialized and the Arraylist need to be greater than 0");
         }
 
         // Reihenfolge der Variablen ändern
-        //Collections.reverse(vars);
+        Collections.reverse(vars);
 
         int inputLength = vars.size();
 
@@ -249,7 +214,7 @@ public class Simplify implements MinimizerInterface {
                 // und allen Cubes des Cofactor-Covers [One, wenn nicht die gleichen States]
                 DifferenceMatrix differenceMatrix = null;
                 try {
-                    differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube);
+                    differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube, "distance");
                 } catch (EmptyCoverException e) {
                     // TODO inputCofactor leer -> was tun? wo prüfen?
                     e.printStackTrace();
@@ -293,7 +258,7 @@ public class Simplify implements MinimizerInterface {
                                             && inputCofactor.getCube(j).getState(k) == ThreeStateValue.zero)) {
 
                                         indexNewDC.add(k);
-                                        countUse++;
+//                                        countUse++;
 
                                         // TODO countUse überall richtig hochgesetzt?
 
@@ -305,6 +270,7 @@ public class Simplify implements MinimizerInterface {
                         }
 
                         if (indexNewDC.size() == 1 && expandable) {
+                            countUse++;
 
                             tempCofactor.addCube(inputCofactor.getCube(j));
 
@@ -317,6 +283,7 @@ public class Simplify implements MinimizerInterface {
 
                         } else {
                             tempCofactor.addCube(inputCofactor.getCube(j));
+                            countUse++;
                         }
                     }
                 }
@@ -327,7 +294,7 @@ public class Simplify implements MinimizerInterface {
 
                 inputCofactor = tempCofactor;
             }
-            //System.out.println("Zwischenschritt Simplified Cofactor: \n" + inputCofactor);
+//            System.out.println("Zwischenschritt Simplified Cofactor: \n" + inputCofactor);
 
         } while (inputCofactorSize != inputCofactor.size());
 
@@ -335,12 +302,12 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     * TODO sonstige Kommentare
+     * 
      * Checks if the cube is contained in the offset (in conflict with the offset)
-     * @param offset
-     * @param cube
-     * @param index
-     * @return
+     * @param offset Set of all Cubes with output 0
+     * @param cube Cube to check whether it covers an Offset-Cube
+     * @param index Index of the ThreeStateValue we need to check
+     * @return Boolean whether cube is covered by offset
      */
     private boolean checkOffset(Cover offset, Cube cube, int index) {
         boolean containedInOffset = false;
@@ -357,12 +324,12 @@ public class Simplify implements MinimizerInterface {
         antiCube.setState(index, newState);
 
         try {
-            differenceCover = new DifferenceMatrix(offset, cube, 0).getDiffCover();
+            differenceCover = new DifferenceMatrix(offset, cube, "NoDcElement").getDiffCover();
         } catch (EmptyCoverException e) {
             // If the Offset is empty, the cube couldn't be contained
             return false;
         }
-
+        
         for(int i = 0; i < differenceCover.size(); i++) {
             if(differenceCover.getCube(i).inputContains(ThreeStateValue.one)){
                 continue;
@@ -444,7 +411,7 @@ public class Simplify implements MinimizerInterface {
         // ZERO - no contradiction, ONE - contradition -> not possible to cover the cube 
         // If the opposite cofactor cover is empty, the cube is not covered by it
         try {
-            containMatrix = new DifferenceMatrix(oppositeCofactor, cube, true);
+            containMatrix = new DifferenceMatrix(oppositeCofactor, cube, "containment");
         } catch (EmptyCoverException e) {
             return false;
         }
@@ -498,10 +465,10 @@ public class Simplify implements MinimizerInterface {
     }
 
     /**
-     *
-     * @param vars
-     * @param cube
-     * @return
+     *Building the Expression of one cube
+     * @param vars  List of all variables from the booltable
+     * @param cube Cube to convert into Expression
+     * @return Expression of one cube
      */
     private Expression getTermExpression(List<Variable> vars, Cube cube) {
         Expression cubeExpression = null;

@@ -5,37 +5,16 @@ import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 public class DifferenceMatrix extends BooleanMatrix {
 
+    
     /**
      * Generate a new BooleanMatrix with the given Cube and Cover
-     *
-     * @param originalCover TODO Beschreibung
-     * @param cube
-     */
-    public DifferenceMatrix(Cover originalCover, Cube cube) throws EmptyCoverException {
-        super(originalCover, cube);
-
-        // Calculate the difference Cover between the considered cube and the cubes of the cover
-        for (int i = 0; i < originalCover.size(); i++) {
-            ThreeStateValue[] row = new ThreeStateValue[cube.getInputLength()];
-
-            // Calculate the difference value for each variable value of the cube
-            for (int j = 0; j < cube.getInputLength(); j++) {
-                boolean element = generateDistanceElement(i, j);
-                row[j] = ThreeStateValue.value(element);
-            }
-
-            // Save the difference Cubes in the difference Cover
-            this.diffCover.addCube(new Cube(row, ThreeStateValue.one));
-        }
-    }
-
-    /**
-     * TODO: Prüfen, ob verwendet
+     * 
      * @param originalCover
      * @param cube
-     * @param containment
+     * @param mode kind of the difference matrix ("distance", "containment", "NoDcElement")
+     * @throws EmptyCoverException
      */
-    public DifferenceMatrix(Cover originalCover, Cube cube, boolean containment) throws EmptyCoverException{
+    public DifferenceMatrix(Cover originalCover, Cube cube, String mode) throws EmptyCoverException {
         super(originalCover, cube);
 
         // Calculate the difference Cover between the considered cube and the cubes of the cover
@@ -44,41 +23,27 @@ public class DifferenceMatrix extends BooleanMatrix {
 
             // Calculate the difference value for each variable value of the cube
             for (int j = 0; j < cube.getInputLength(); j++) {
-                boolean element = generateContainmentElement(i, j);
+                boolean element = false;
+                switch(mode) {
+                case "distance" : 
+                    element = generateDistanceElement(i, j);
+                    break;
+                case "containment" :
+                    element = generateContainmentElement(i, j);
+                    break;
+                case "NoDcElement" : 
+                    element = generateNoDCElement(i, j);
+                    break;
+                }
                 row[j] = ThreeStateValue.value(element);
             }
 
             // Save the difference Cubes in the difference Cover
             this.diffCover.addCube(new Cube(row, ThreeStateValue.one));
         }
-
     }
 
-    /**
-     * TODO: Prüfen, ob verwendet
-     * @param originalCover
-     * @param cube
-     * @param noDCconsider
-     */
-    public DifferenceMatrix(Cover originalCover, Cube cube, int noDCconsider) throws EmptyCoverException {
-        super(originalCover, cube);
-
-        // Calculate the difference Cover between the considered cube and the cubes of the cover
-        for (int i = 0; i < originalCover.size(); i++) {
-            ThreeStateValue[] row = new ThreeStateValue[cube.getInputLength()];
-
-            // Calculate the difference value for each variable value of the cube
-            for (int j = 0; j < cube.getInputLength(); j++) {
-                boolean element = generateNoDCElement(i, j);
-                row[j] = ThreeStateValue.value(element);
-            }
-
-            // Save the difference Cubes in the difference Cover
-            this.diffCover.addCube(new Cube(row, ThreeStateValue.one));
-        }
-
-    }
-
+ 
     /**
      * Calculate the distance of the variable value of the considered cube and the cover
      *

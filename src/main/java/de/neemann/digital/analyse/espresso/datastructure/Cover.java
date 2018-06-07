@@ -179,7 +179,7 @@ public class Cover implements Iterable<Cube> {
 
     public boolean contains(Cube cube) {
         try {
-            Cover differenceCover = new DifferenceMatrix(this, cube).getDiffCover();
+            Cover differenceCover = new DifferenceMatrix(this, cube, "distance").getDiffCover();
             int inputLenght = differenceCover.getInputLength();
 
             // Alle Cubes der DiffMatrix durchgehen

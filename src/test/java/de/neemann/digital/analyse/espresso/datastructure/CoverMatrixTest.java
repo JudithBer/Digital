@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 public class CoverMatrixTest {
@@ -16,11 +17,17 @@ public class CoverMatrixTest {
 		@Test
 		public void testBlockMatrix() {
 			Cover onSet = new Cover(cube1, cube2, cube3);
-			BlockMatrix blockMat = new BlockMatrix(onSet, cube2);
-			Cover testBlockM = new Cover(new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.zero, ThreeStateValue.one}, ThreeStateValue.zero),
-										new Cube(new ThreeStateValue[] {ThreeStateValue.zero, ThreeStateValue.zero, ThreeStateValue.one}, ThreeStateValue.zero),
-										new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.one, ThreeStateValue.zero}, ThreeStateValue.zero));
-			assertEquals(testBlockM.toString(), blockMat.toString());
+			BlockMatrix blockMat;
+            try {
+                blockMat = new BlockMatrix(onSet, cube2);
+                Cover testBlockM = new Cover(new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.zero, ThreeStateValue.one}, ThreeStateValue.zero),
+                        new Cube(new ThreeStateValue[] {ThreeStateValue.zero, ThreeStateValue.zero, ThreeStateValue.one}, ThreeStateValue.zero),
+                        new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.one, ThreeStateValue.zero}, ThreeStateValue.zero));
+          assertEquals(testBlockM.toString(), blockMat.toString());
+            } catch (EmptyCoverException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 		}
 
 	}

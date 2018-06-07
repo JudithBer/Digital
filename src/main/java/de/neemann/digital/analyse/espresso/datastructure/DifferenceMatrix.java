@@ -3,17 +3,22 @@ package de.neemann.digital.analyse.espresso.datastructure;
 import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
+/**
+ * Generates a Matrix with the difference between all Cubes of a Cover and the given Cube.
+ * @author Annika Keil, Judith Berthold
+ */
 public class DifferenceMatrix extends BooleanMatrix {
 
     /**
-     * Generate a new BooleanMatrix with the given Cube and Cover
+     * Generate a new Boolean-Matrix with the given Cube and Cover
      * @param originalCover
      *            Cover to compare with the given Cube to calculate the Difference-Matrix
      * @param cube
      *            Cube to compare with a Cover to calculate the Difference-Matrix
      * @param mode
-     *            Kind of the difference matrix ("distance", "containment", "NoDcElement")
+     *            Kind of the Difference-Matrix ("distance", "containment", "NoDcElement")
      * @throws EmptyCoverException
+     *             if the given Cover is empty
      */
     public DifferenceMatrix(Cover originalCover, Cube cube, String mode)
             throws EmptyCoverException {
@@ -41,16 +46,16 @@ public class DifferenceMatrix extends BooleanMatrix {
             }
 
             // Save the difference Cubes in the difference Cover
-            this.diffCover.addCube(new Cube(row, ThreeStateValue.one));
+            this.getDiffCover().addCube(new Cube(row, ThreeStateValue.one));
         }
     }
 
     /**
-     * Calculate the distance of the variable value of the considered cube and the cover
+     * Calculate the distance of the variable value of the considered Cube and the Cover
      * @param cubeIndex
-     *            Index of the actual cube of the Onset
+     *            Index of the actual Cube of the Onset
      * @param inputIndex
-     *            Index of the actual variable of the cubes
+     *            Index of the actual variable of the Cubes
      * @return Difference between the variable values
      */
     private boolean generateDistanceElement(int cubeIndex, int inputIndex) {
@@ -66,13 +71,13 @@ public class DifferenceMatrix extends BooleanMatrix {
     }
 
     /**
-     * Generate the difference between the given cube and the original cube on a given index to
-     * check whether a cube is contained in another cube
+     * Generate the difference between the given Cube and the original Cube on a given index to
+     * check whether a Cube is contained in another Cube
      * @param cubeIndex
-     *            Index of the cube to generate the Element
+     *            Index of the Cube to generate the Element
      * @param inputIndex
      *            Index of the state to compare
-     * @return boolean if Inputs differ. True if: one && zero, zero && one or dc && !dc
+     * @return boolean if Inputs differ. True if: one && zero, zero && one or DC && !DC
      */
     private boolean generateContainmentElement(int cubeIndex, int inputIndex) {
         ThreeStateValue coverInputState = getOriginalCover().getCube(cubeIndex)
@@ -87,10 +92,10 @@ public class DifferenceMatrix extends BooleanMatrix {
     }
 
     /**
-     * Generate the difference between the given cube and the original cube on a given index to
-     * check whether a cube differs the other if there is no DC on the current cube
+     * Generate the difference between the given Cube and the original Cube on a given index to
+     * check whether a Cube differs the other if there is no DC on the current Cube
      * @param cubeIndex
-     *            Index of the cube to generate the Element
+     *            Index of the Cube to generate the Element
      * @param inputIndex
      *            Index of the state to compare
      * @return boolean if Inputs differ. True if: one && zero, zero && one or cubeInput != DC

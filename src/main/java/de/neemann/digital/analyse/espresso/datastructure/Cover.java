@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * Data structure of a logical function. It is defined by an ArrayList of Cubes (implicants of the
  * function).
+ * @author Annika Keil, Judith Berthold
  */
 public class Cover implements Iterable<Cube> {
 
@@ -20,7 +21,7 @@ public class Cover implements Iterable<Cube> {
     private int inputLength;
 
     /**
-     * Generate a Cover with an empty list of cubes with the given number of input variables
+     * Generate a Cover with an empty list of Cubes with the given number of input variables
      * @param inputLength
      *            Number of input variables of the function
      */
@@ -30,9 +31,9 @@ public class Cover implements Iterable<Cube> {
     }
 
     /**
-     * Generate a Cover with the given cubes
+     * Generate a Cover with the given Cubes
      * @param cubes
-     *            Given cubes of the cover
+     *            Given Cubes of the Cover
      * @throws Exception
      */
     public Cover(Cube... cubes) {
@@ -45,12 +46,12 @@ public class Cover implements Iterable<Cube> {
         }
 
         this.cubes = new ArrayList<Cube>();
-        // Set the size of the first cube as inputLength
+        // Set the size of the first Cube as inputLength
         this.inputLength = cubes[0].getInputLength();
 
-        // Set the given cubes
+        // Set the given Cubes
         for (Cube cube : cubes) {
-            // Check that the cube has the same number of input variables
+            // Check that the Cube has the same number of input variables
             if (cube.getInputLength() != inputLength) {
                 throw new RuntimeException("All cubes need to have the same length.");
             }
@@ -80,7 +81,7 @@ public class Cover implements Iterable<Cube> {
     }
 
     /**
-     * Sort the cover based on the weight of the cubes
+     * Sort the Cover based on the weight of the Cubes
      * @param asc
      *            Direction of sorting ( asc = true, des = false)
      */
@@ -103,7 +104,7 @@ public class Cover implements Iterable<Cube> {
 
     /**
      * Calculate the weight of the Cubes of the Cover
-     * @return List of Pairs with the index of the cube and the weight of it
+     * @return List of Pairs with the index of the Cube and the weight of it
      */
     private List<Pair<Integer, Integer>> getWeight() {
 
@@ -177,6 +178,12 @@ public class Cover implements Iterable<Cube> {
         return result;
     }
 
+    /**
+     * Checks whether a Cover contains a special Cube
+     * @param cube
+     *            Cube to check whether its part of the given Cover
+     * @return boolean whether the Cover contains the Cube
+     */
     public boolean contains(Cube cube) {
         try {
             Cover differenceCover = new DifferenceMatrix(this, cube, "distance").getDiffCover();
@@ -188,11 +195,11 @@ public class Cover implements Iterable<Cube> {
                 Cube currentCube = differenceCover.getCube(i);
 
                 for (int j = 0; j < inputLenght; j++) {
-                    if(currentCube.getState(j) == ThreeStateValue.one)
+                    if (currentCube.getState(j) == ThreeStateValue.one)
                         rowSum++;
                 }
 
-                if (rowSum == 0){
+                if (rowSum == 0) {
                     return true;
                 }
             }

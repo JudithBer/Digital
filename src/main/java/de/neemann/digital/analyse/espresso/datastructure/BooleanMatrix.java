@@ -13,7 +13,7 @@ import de.neemann.digital.analyse.quinemc.ThreeStateValue;
  */
 public class BooleanMatrix {
 
-    protected Cover diffCover;
+    private Cover diffCover;
     private Cube cube;
     private Cover originalCover;
 
@@ -23,9 +23,11 @@ public class BooleanMatrix {
     /**
      * Generate a new BooleanMatrix with the given Cube and Cover
      * @param originalCover
-     *            TODO Beschreibung
+     *            Cover to calculate the Boolean Matrix of
      * @param cube
-     *            TODO Beschreibung
+     *            Cube which is needed to compare the Cover with
+     * @throws EmptyCoverException
+     *             if the given Cover is empty
      */
     public BooleanMatrix(Cover originalCover, Cube cube) throws EmptyCoverException {
         // Validate the input parameters
@@ -43,28 +45,28 @@ public class BooleanMatrix {
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return all ignored Columns
      */
     public Iterator<Integer> ignoredColumnsIterator() {
         return new IgnoredIndexIterator(getColumnCount(), ignoredColumns);
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return all ignored Rows
      */
     public Iterator<Integer> ignoredRowsIterator() {
         return new IgnoredIndexIterator(getRowCount(), ignoredRows);
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return Length of the diffCover (Count of the Columns)
      */
     private int getColumnCount() {
         return diffCover.getInputLength();
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return Size of the diffCover (Count of the Rows)
      */
     private int getRowCount() {
         return diffCover.size();
@@ -72,7 +74,7 @@ public class BooleanMatrix {
 
     /**
      * @param index
-     *            TODO Beschreibung
+     *            Column to be ignored
      */
     public void addIgnoredColumn(Integer index) {
         ignoredColumns.add(index);
@@ -80,7 +82,7 @@ public class BooleanMatrix {
 
     /**
      * @param index
-     *            TODO Beschreibung
+     *            Row to be ignored
      */
     public void addIgnoredRow(Integer index) {
         ignoredRows.add(index);
@@ -89,21 +91,21 @@ public class BooleanMatrix {
     // Getter of the BooleanMatrix attributes
 
     /**
-     * @return TODO Beschreibung
+     * @return the current DiffCover
      */
     public Cover getDiffCover() {
         return diffCover;
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return the current Cube
      */
     public Cube getCube() {
         return cube;
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return get the original Cover of the Matrix
      */
     public Cover getOriginalCover() {
         return originalCover;
@@ -126,21 +128,22 @@ public class BooleanMatrix {
     }
 
     /**
-     * TODO Beschreibung
+     * Get a special Element on the position (row, column)
      * @param row
-     *            TODO Beschreibung
+     *            Row of the requested Element
      * @param column
-     *            TODO Beschreibung
-     * @return TODO Beschreibung
+     *            Column of the requested Element
+     * @return the TSV of the requested Element
      */
     public ThreeStateValue getElement(int row, int column) {
         return diffCover.getCube(row).getState(column);
     }
 
     /**
+     * Checks whether a Column is ignored
      * @param index
-     *            TODO Beschreibung
-     * @return TODO Beschreibung
+     *            Index of the column
+     * @return boolean whether the column is ignored or not
      */
     public boolean isIgnoredColumn(Integer index) {
         if (ignoredColumns.contains(index)) {
@@ -150,9 +153,10 @@ public class BooleanMatrix {
     }
 
     /**
+     * Checks whether a Row is ignored
      * @param index
-     *            TODO Beschreibung
-     * @return TODO Beschreibung
+     *            Index of the Row
+     * @return boolean whether the row is ignored or not
      */
     public boolean isIgnoredRow(Integer index) {
         if (ignoredRows.contains(index)) {
@@ -165,4 +169,5 @@ public class BooleanMatrix {
     public String toString() {
         return diffCover.toString();
     }
+
 }

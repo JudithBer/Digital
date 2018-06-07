@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * TODO: JavaDoc Kommentar für Klasse
- * @author judith
+ * Iterator to ignore special Indexes for the Espresso algorithm
+ * @author Annika Keil, Judith Berthold
  */
 public class IgnoredIndexIterator implements Iterator {
 
@@ -14,10 +14,11 @@ public class IgnoredIndexIterator implements Iterator {
     private int upperLimit;
 
     /**
+     * Constructor for the Iterator
      * @param upperLimit
-     *            TODO: Beschreibung
+     *            Limit for the Iteration
      * @param ignoredIndexes
-     *            TODO: Beschreibung
+     *            Set of the Indexes to be ignored
      */
     public IgnoredIndexIterator(int upperLimit, Set<Integer> ignoredIndexes) {
         this.upperLimit = upperLimit;

@@ -8,37 +8,44 @@ import de.neemann.digital.analyse.quinemc.BoolTableByteArray;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 /**
- * TODO: Beschreibung der Klasse für JavaDoc
- * @author judith
+ * Booltable with ThreeStateValues as Inputs
+ * @author Annika Keil, Judith Berthold
  */
 public class BoolTableTSVArray implements BoolTable {
     private List<ThreeStateValue> boolTable = new ArrayList<>();
 
     /**
+     * Contructor of the Booltable
      * @param boolTable
-     *            TODO Beschreibung
+     *            A Booltable with TSV as Inputs
      */
     public BoolTableTSVArray(List<ThreeStateValue> boolTable) {
         this.boolTable = boolTable;
     }
 
+    /**
+     * Copy-Contructor of the BoolTable
+     * @param boolTable
+     *            given Booltable to generate a Copy
+     */
     public BoolTableTSVArray(BoolTableByteArray boolTable) {
         List<ThreeStateValue> tempBoolTable = new ArrayList<>();
-        for(int i = 0; i < boolTable.size(); i++) {
+        for (int i = 0; i < boolTable.size(); i++) {
             tempBoolTable.add(boolTable.get(i));
         }
         this.boolTable = tempBoolTable;
     }
 
     /**
-     * @return TODO Beschreibung
+     * Get the current Booltable
+     * @return the given Booltable
      */
     public List<ThreeStateValue> getBoolTable() {
         return boolTable;
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return Count of all TSV.one in the Booltable
      */
     public int getQuantityOne() {
         int sum = 0;
@@ -51,7 +58,7 @@ public class BoolTableTSVArray implements BoolTable {
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return Count of all TSV.zero in the Booltable
      */
     public int getQuantityZero() {
         int sum = 0;
@@ -64,7 +71,7 @@ public class BoolTableTSVArray implements BoolTable {
     }
 
     /**
-     * @return TODO Beschreibung
+     * @return Count of all TSV.dontCare in the Booltable
      */
     public int getQuantityDC() {
         int sum = 0;
@@ -86,6 +93,14 @@ public class BoolTableTSVArray implements BoolTable {
         return boolTable.get(i);
     }
 
+    /**
+     * Generates the Cover out of the given Booltable
+     * @param state
+     *            defines whether the On-Set, Off-Set or DC-Set needs to be generated
+     * @param inputLength
+     *            defines the Length of the Cover
+     * @return the requested Cover (On-Set, Off-Set, DC-Set)
+     */
     public Cover getCover(ThreeStateValue state, int inputLength) {
 
         Cover newCover = new Cover(inputLength);
@@ -96,7 +111,7 @@ public class BoolTableTSVArray implements BoolTable {
             // .. if the output has the given state.
             if (boolTable.get(i) == state) {
 
-                // Temporary Array for the cube input of the currently working minterm
+                // Temporary Array for the Cube input of the currently working minterm
                 ThreeStateValue[] tempCubeInput = new ThreeStateValue[inputLength];
 
                 // Convert the index from Integer to String/CharArray

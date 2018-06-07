@@ -32,7 +32,7 @@ public class Simplify implements MinimizerInterface {
      * @param vars
      *            the variables used
      * @param boolTable
-     *            the bool table of the function
+     *            the Booltable of the function
      * @param resultName
      *            name of the result
      * @param listener
@@ -83,7 +83,8 @@ public class Simplify implements MinimizerInterface {
         System.out.println("END - Simplified Cover: \n" + simplifiedCover);
 
         Expression e = getExpression(vars, simplifiedCover);
-        System.out.println("Expression: " + e);// FormatToExpression.FORMATTER_JAVA.format(e));
+        System.out.println("Expression: " + e);
+        // FormatToExpression.FORMATTER_JAVA.format(e));
         listener.resultFound(resultName, e);
     }
 
@@ -533,5 +534,4 @@ public class Simplify implements MinimizerInterface {
 
         return cubeExpression;
     }
-
 }

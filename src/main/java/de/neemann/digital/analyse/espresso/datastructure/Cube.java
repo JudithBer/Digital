@@ -10,9 +10,9 @@ import java.util.Arrays;
  */
 public class Cube {
 
-    // Input values of the cubes (Order is important for the assignment to the variables)
+    // Input values of the Cubes (Order is important for the assignment to the variables)
     private ThreeStateValue[] input;
-    // Output value of the cube
+    // Output value of the Cube
     private ThreeStateValue output;
 
     /**
@@ -33,9 +33,9 @@ public class Cube {
     /**
      * Generate a new Cube filled with the given values
      * @param input
-     *            Input values of the new cube
+     *            Input values of the new Cube
      * @param output
-     *            Output value of the new cube
+     *            Output value of the new Cube
      */
     public Cube(ThreeStateValue[] input, ThreeStateValue output) {
         this.input = Arrays.copyOf(input, input.length);
@@ -45,7 +45,7 @@ public class Cube {
     /**
      * Generate a new Cube (copy) filled with the values of the given Cube
      * @param origin
-     *            Origin cube to copy
+     *            Origin Cube to copy
      */
     public Cube(Cube origin) {
         this.input = Arrays.copyOf(origin.input, origin.input.length);
@@ -54,7 +54,7 @@ public class Cube {
 
     /**
      * Convert the Cube into Positional Cube Notation (PCN)
-     * @return An array with the input values of the cube in PCN(-> array of double the length of
+     * @return An array with the input values of the Cube in PCN(-> array of double the length of
      *         the input)
      */
     public ThreeStateValue[] convertToPCN() {
@@ -76,12 +76,13 @@ public class Cube {
     }
 
     /**
-     * Checks if the cube contains the given state for at least one input
-     * @param state The state to check the containment
-     * @return      If the state is contained in the cube or not
+     * Checks if the Cube contains the given state for at least one input
+     * @param state
+     *            The state to check the containment
+     * @return If the state is contained in the Cube or not
      */
     public boolean inputContains(ThreeStateValue state) {
-        for(int i = 0; i < input.length; i++) {
+        for (int i = 0; i < input.length; i++) {
             if (input[i] == state) {
                 return true;
             }
@@ -99,6 +100,10 @@ public class Cube {
         return this.input.length;
     }
 
+    /**
+     * Get all Input of the Cube
+     * @return an Array of ThreeStateValues which represents the requested Cube
+     */
     public ThreeStateValue[] getInput() {
         return input;
     }
@@ -113,11 +118,12 @@ public class Cube {
         return input[index];
     }
 
-
     /**
-     * TODO Beschreibung
+     * Sets a ThreeStateValue on the given Index
      * @param index
+     *            index to set a new State in a Cube
      * @param newState
+     *            State which needs to be set at index
      */
     public void setState(int index, ThreeStateValue newState) {
         this.input[index] = newState;
@@ -132,7 +138,7 @@ public class Cube {
     }
 
     /**
-     * Print the input values and the ouput value separated with a space
+     * Print the input values and the output value separated with a space
      * @return
      */
     @Override

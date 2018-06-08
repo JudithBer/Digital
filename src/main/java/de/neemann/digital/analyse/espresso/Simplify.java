@@ -62,7 +62,9 @@ public class Simplify implements MinimizerInterface {
 
         int inputLength = vars.size();
 
-        BoolTableTSVArray input = new BoolTableTSVArray((BoolTableByteArray) boolTable);
+
+        //System.err.println(boolTable.getClass().getSimpleName());
+        BoolTableTSVArray input = new BoolTableTSVArray(boolTable);
         // System.out.println(input);
 
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);

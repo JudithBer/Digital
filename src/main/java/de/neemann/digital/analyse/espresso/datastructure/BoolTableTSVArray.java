@@ -14,27 +14,33 @@ import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 public class BoolTableTSVArray implements BoolTable {
     private List<ThreeStateValue> boolTable = new ArrayList<>();
 
+    public BoolTableTSVArray(BoolTable boolTableInput){
+        for(int i = 0; i < boolTableInput.size(); i++) {
+            this.boolTable.add(boolTableInput.get(i));
+        }
+    }
+
     /**
      * Contructor of the Booltable
      * @param boolTable
      *            A Booltable with TSV as Inputs
      */
-    public BoolTableTSVArray(List<ThreeStateValue> boolTable) {
-        this.boolTable = boolTable;
-    }
+//    public BoolTableTSVArray(List<ThreeStateValue> boolTable) {
+//        this.boolTable = boolTable;
+//    }
 
     /**
      * Copy-Contructor of the BoolTable
      * @param boolTable
      *            given Booltable to generate a Copy
      */
-    public BoolTableTSVArray(BoolTableByteArray boolTable) {
-        List<ThreeStateValue> tempBoolTable = new ArrayList<>();
-        for (int i = 0; i < boolTable.size(); i++) {
-            tempBoolTable.add(boolTable.get(i));
-        }
-        this.boolTable = tempBoolTable;
-    }
+//    public BoolTableTSVArray(BoolTableByteArray boolTable) {
+//        List<ThreeStateValue> tempBoolTable = new ArrayList<>();
+//        for (int i = 0; i < boolTable.size(); i++) {
+//            tempBoolTable.add(boolTable.get(i));
+//        }
+//        this.boolTable = tempBoolTable;
+//    }
 
     /**
      * Get the current Booltable

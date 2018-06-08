@@ -56,9 +56,9 @@ public class Simplify implements MinimizerInterface {
         System.out.println(boolTable);
 
         // Reihenfolge der Variablen ändern
-        vars =  new ArrayList<>(vars);
-        Collections.reverse(vars);
-        System.out.println(vars);
+//        vars =  new ArrayList<>(vars);
+//        Collections.reverse(vars);
+//        System.out.println(vars);
 
         int inputLength = vars.size();
 
@@ -288,8 +288,9 @@ public class Simplify implements MinimizerInterface {
 
                                     // TODO countUse überall richtig hochgesetzt?
 
-                                } else if (inputCofactor.getCube(j)
-                                        .getState(k) == ThreeStateValue.dontCare) {
+                                } else if (currentCube.getState(k) == ThreeStateValue.dontCare
+                                        || inputCofactor.getCube(j)
+                                            .getState(k) != ThreeStateValue.dontCare) {
                                     // wir ändern nur uns, daher keine offset prüfung für diese
                                     // Stelle notwendig - TODO Kommentar raus
                                     expandable = false;
@@ -298,15 +299,14 @@ public class Simplify implements MinimizerInterface {
                         }
 
                         if (indexNewDC.size() == 1 && expandable) {
-                            countUse++;
-
                             tempCofactor.addCube(inputCofactor.getCube(j));
 
                             if (!checkOffset(offset, currentCube, indexNewDC.get(0), currentCube.getState(indexNewDC.get(0)) )) {
-                                Cube modifiedCube = currentCube;
+                                Cube modifiedCube = new Cube(currentCube);
                                 modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
 
                                 tempCofactor.addCube(modifiedCube);
+                                countUse++;
                             }
 
                         } else {

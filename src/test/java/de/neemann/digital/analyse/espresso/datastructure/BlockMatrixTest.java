@@ -8,7 +8,7 @@ import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 public class BlockMatrixTest {
-	Cube cube1 = new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.one, ThreeStateValue.one}, ThreeStateValue.zero);
+/*	Cube cube1 = new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.one, ThreeStateValue.one}, ThreeStateValue.zero);
 	Cube cube2 = new Cube(new ThreeStateValue[] {ThreeStateValue.zero, ThreeStateValue.one, ThreeStateValue.zero}, ThreeStateValue.zero);
 	Cube cube3 = new Cube(new ThreeStateValue[] {ThreeStateValue.zero, ThreeStateValue.one, ThreeStateValue.one}, ThreeStateValue.zero);
 	Cube cube4 = new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.zero, ThreeStateValue.zero}, ThreeStateValue.zero);
@@ -29,5 +29,5 @@ public class BlockMatrixTest {
             e.printStackTrace();
         }
 	}
-
+*/
 }

@@ -8,7 +8,7 @@ import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 public class CoverMatrixTest {
-
+/*
 	public class BlockMatrixTest {
 		Cube cube1 = new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.one, ThreeStateValue.dontCare}, ThreeStateValue.one);
 		Cube cube2 = new Cube(new ThreeStateValue[] {ThreeStateValue.zero, ThreeStateValue.one, ThreeStateValue.dontCare}, ThreeStateValue.one);
@@ -25,11 +25,11 @@ public class CoverMatrixTest {
                         new Cube(new ThreeStateValue[] {ThreeStateValue.one, ThreeStateValue.one, ThreeStateValue.zero}, ThreeStateValue.zero));
           assertEquals(testBlockM.toString(), blockMat.toString());
             } catch (EmptyCoverException e) {
-                // TODO Auto-generated catch block
+
                 e.printStackTrace();
             }
 		}
 
 	}
-
+*/
 }

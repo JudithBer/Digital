@@ -111,22 +111,6 @@ public class BooleanMatrix {
         return originalCover;
     }
 
-    // TODO: Nur für Testausgaben -> RAUS
-    /**
-     * @return TODO Beschreibung
-     */
-    public Set<Integer> getIgnoredColumns() {
-        return ignoredColumns;
-    }
-
-    // TODO: Nur für Testausgaben -> RAUS
-    /**
-     * @return TODO Beschreibung
-     */
-    public Set<Integer> getIgnoredRows() {
-        return ignoredRows;
-    }
-
     /**
      * Get a special Element on the position (row, column)
      * @param row

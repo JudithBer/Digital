@@ -28,7 +28,8 @@ import static de.neemann.digital.analyse.expression.Operation.or;
 public class Simplify implements MinimizerInterface {
 
     /**
-     * TODO Beschreibung
+     * Minimize the given function with the Simplify-Algorithm
+     * and answer the given listener with the minimized expression of the function
      * @param vars
      *            the variables used
      * @param boolTable
@@ -52,8 +53,12 @@ public class Simplify implements MinimizerInterface {
                     "BoolTable has to be initialized and the Arraylist need to be greater than 0");
         }
 
+        System.out.println(boolTable);
+
         // Reihenfolge der Variablen ändern
+        vars =  new ArrayList<>(vars);
         Collections.reverse(vars);
+        System.out.println(vars);
 
         int inputLength = vars.size();
 
@@ -73,9 +78,9 @@ public class Simplify implements MinimizerInterface {
         Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate);
         System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
-        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset);
+        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset, binate);
         System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
-        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset);
+        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset, binate);
         System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
         Cover simplifiedCover = mergeWithContainment(simplifiedCofactorBinate,
@@ -199,7 +204,7 @@ public class Simplify implements MinimizerInterface {
      *            Offset of the original function
      * @return simplified Cofactor
      */
-    private Cover simplifyCofactor(Cover cofactor, Cover offset) {
+    private Cover simplifyCofactor(Cover cofactor, Cover offset, int binate) {
 
         Cover inputCofactor = cofactor; // zu vereinfachender Cofactor
         Cover tempCofactor; // temporares Cover während der Vereinfachung mit den teil-vereinfachten
@@ -284,7 +289,7 @@ public class Simplify implements MinimizerInterface {
                                     // TODO countUse überall richtig hochgesetzt?
 
                                 } else if (inputCofactor.getCube(j)
-                                        .getState(k) != ThreeStateValue.dontCare) {
+                                        .getState(k) == ThreeStateValue.dontCare) {
                                     // wir ändern nur uns, daher keine offset prüfung für diese
                                     // Stelle notwendig - TODO Kommentar raus
                                     expandable = false;
@@ -297,16 +302,16 @@ public class Simplify implements MinimizerInterface {
 
                             tempCofactor.addCube(inputCofactor.getCube(j));
 
-                            Cube modifiedCube = currentCube;
-                            modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
+                            if (!checkOffset(offset, currentCube, indexNewDC.get(0), currentCube.getState(indexNewDC.get(0)) )) {
+                                Cube modifiedCube = currentCube;
+                                modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
 
-                            if (!checkOffset(offset, currentCube, indexNewDC.get(0))) {
                                 tempCofactor.addCube(modifiedCube);
                             }
 
                         } else {
                             tempCofactor.addCube(inputCofactor.getCube(j));
-                            countUse++;
+
                         }
                     }
                 }
@@ -334,14 +339,14 @@ public class Simplify implements MinimizerInterface {
      *            Index of the ThreeStateValue we need to check
      * @return Boolean whether cube is covered by offset
      */
-    private boolean checkOffset(Cover offset, Cube cube, int index) {
+    private boolean checkOffset(Cover offset, Cube cube, int index, ThreeStateValue currentState) {
         boolean containedInOffset = false;
         Cover differenceCover;
 
         // Prüfen, dass Anitstate nicht in Offset
         Cube antiCube = new Cube(cube);
         ThreeStateValue newState;
-        if (cube.getState(index) == ThreeStateValue.one) {
+        if (currentState == ThreeStateValue.one) {
             newState = ThreeStateValue.zero;
         } else {
             newState = ThreeStateValue.one;
@@ -349,7 +354,7 @@ public class Simplify implements MinimizerInterface {
         antiCube.setState(index, newState);
 
         try {
-            differenceCover = new DifferenceMatrix(offset, cube, "NoDcElement").getDiffCover();
+            differenceCover = new DifferenceMatrix(offset, antiCube, "NoDcElement").getDiffCover();
         } catch (EmptyCoverException e) {
             // If the Offset is empty, the cube cannot be contained
             return false;
@@ -442,7 +447,6 @@ public class Simplify implements MinimizerInterface {
         // ZERO - no contradiction, ONE - contradiction -> not possible to cover the cube
         // If the opposite Cofactor cover is empty, the cube is not covered by it
         try {
-            //TODO:überprüfenm ob Difference Matrix wirklich korrekt implementiert ist
             containMatrix = new DifferenceMatrix(oppositeCofactor, cube, "containment");
         } catch (EmptyCoverException e) {
             return false;

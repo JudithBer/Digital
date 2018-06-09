@@ -61,33 +61,27 @@ public class Simplify implements MinimizerInterface {
 
         System.out.println("boolTable:" + vars.size());
 
-        // Reihenfolge der Variablen ändern
-//        vars =  new ArrayList<>(vars);
-//        Collections.reverse(vars);
-//        System.out.println(vars);
-
         int inputLength = vars.size();
 
 
-        //System.err.println(boolTable.getClass().getSimpleName());
         BoolTableTSVArray input = new BoolTableTSVArray(boolTable);
-        // System.out.println(input);
 
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);
         Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
 
-        int binate = selectBinate(cover);
+        int binate = selectBinate(cover, inputLength);
 
-        Cover cofactorBinate = generateCofactor(cover, ThreeStateValue.one, binate);
-        Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate);
+        //inputLength mitgeben, damit es nicht mehr neu berechnet werden muss jedes mal
+        Cover cofactorBinate = generateCofactor(cover, ThreeStateValue.one, binate, inputLength);
+        Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate, inputLength);
 
-        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset, binate);
-        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset, binate);
+        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset, binate, inputLength);
+        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset, binate, inputLength);
 
         Cover simplifiedCover = mergeWithContainment(simplifiedCofactorBinate,
-                simplifiedCofactorAntiBinate, binate);
+                simplifiedCofactorAntiBinate, binate, inputLength);
 
-        Expression e = getExpression(vars, simplifiedCover);
+        Expression e = getExpression(vars, simplifiedCover, inputLength);
         System.out.println("Expression: " + e);
         // FormatToExpression.FORMATTER_JAVA.format(e));
         listener.resultFound(resultName, e);
@@ -100,9 +94,8 @@ public class Simplify implements MinimizerInterface {
      *            Cover to search for Binate variable
      * @return Column of the Cover which ist most Binate
      */
-    private int selectBinate(Cover input) {
+    private int selectBinate(Cover input, int inputLength) {
 
-        int inputLength = input.getInputLength();
 
         int[] zeros = new int[inputLength];
         int[] ones = new int[inputLength];
@@ -165,22 +158,22 @@ public class Simplify implements MinimizerInterface {
      *            Column of the Cover which is most Binate
      * @return Cofactor of the input Cover
      */
-    private Cover generateCofactor(Cover input, ThreeStateValue state, int binate) {
+    private Cover generateCofactor(Cover input, ThreeStateValue state, int binate, int inputLength) {
 
         // TODO vereinfachen
-        ThreeStateValue antiState = ThreeStateValue.zero;
-        switch (state) {
-        case zero:
-            antiState = ThreeStateValue.one;
-            break;
-        case one:
-            antiState = ThreeStateValue.zero;
-            break;
-        }
+        ThreeStateValue antiState = state.invert();
+//        switch (state) {
+//        case zero:
+//            antiState = ThreeStateValue.one.invert();
+//            break;
+//        case one:
+//            antiState = ThreeStateValue.zero;
+//            break;
+//        }
         // System.out.println("State: " + state);
         // System.out.println("Antistate: " + antiState);
 
-        Cover cofactor = new Cover(input.getInputLength());
+        Cover cofactor = new Cover(inputLength);
 
         for (int i = 0; i < input.size(); i++) {
 
@@ -204,7 +197,7 @@ public class Simplify implements MinimizerInterface {
      *            Offset of the original function
      * @return simplified Cofactor
      */
-    private Cover simplifyCofactor(Cover cofactor, Cover offset, int binate) {
+    private Cover simplifyCofactor(Cover cofactor, Cover offset, int binate, int inputLength) {
 
         Cover inputCofactor = cofactor; // zu vereinfachender Cofactor
         Cover tempCofactor; // temporares Cover während der Vereinfachung mit den teil-vereinfachten
@@ -218,7 +211,7 @@ public class Simplify implements MinimizerInterface {
             for (int i = 0; i < inputCofactor.size(); i++) {
 
                 int countUse = 0; // Anzahl wie oft mit anderem Cube vereinfacht werden konnte
-                tempCofactor = new Cover(cofactor.getInputLength()); // Initialisieren
+                tempCofactor = new Cover(inputLength); // Initialisieren
 
                 Cube currentCube = inputCofactor.getCube(0); // 0-ter da akteller am Ende immer
                                                              // hinten angehängt wird und danach mit
@@ -241,7 +234,7 @@ public class Simplify implements MinimizerInterface {
 
                  // Difference Matrix des aktuell betrachteten Cubes
                     Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j); 
-                    int rowSum = rowSum(currentDifferenceCube); 
+                    int rowSum = rowSumGreater1(currentDifferenceCube, inputLength); 
 
                     // Wenn nur ein Unterschied -> Entsprechende Stelle DC setzen
                     if (rowSum == 1) {
@@ -267,7 +260,7 @@ public class Simplify implements MinimizerInterface {
 
                         // Cube durchlaufen und alle Stellen mit Unterschied zwischen den Cubes
                         // betrachten
-                        for (int k = 0; k < currentCube.getInputLength() && expandable; k++) {
+                        for (int k = 0; k < inputLength && expandable; k++) {
 
                             if (currentDifferenceCube.getState(k) == ThreeStateValue.one) {
 
@@ -377,11 +370,24 @@ public class Simplify implements MinimizerInterface {
      *            Cube of which the Sum should be calculated
      * @return Sum of the Cube
      */
-    private int rowSum(Cube cube) {
+//    private int rowSum(Cube cube, int inputLength) {
+//        int rowSum = 0;
+//        for (int i = 0; i < inputLength; i++) {
+//            if (cube.getState(i) == ThreeStateValue.one) {
+//                rowSum++;
+//            }
+//        }
+//        return rowSum;
+//    }
+    
+    private int rowSumGreater1(Cube cube, int inputLength){
         int rowSum = 0;
-        for (int i = 0; i < cube.getInputLength(); i++) {
+        for (int i = 0; i < inputLength; i++) {
             if (cube.getState(i) == ThreeStateValue.one) {
                 rowSum++;
+            }
+            if(rowSum >1) {
+                return rowSum;
             }
         }
         return rowSum;
@@ -397,8 +403,8 @@ public class Simplify implements MinimizerInterface {
      *            Column which is most Binate
      * @return Cover where Cofactor and Anti-Cofactor is merged
      */
-    private Cover mergeWithContainment(Cover simpleCofactor, Cover simpleAntiCofactor, int binate) {
-        Cover result = new Cover(simpleCofactor.getInputLength());
+    private Cover mergeWithContainment(Cover simpleCofactor, Cover simpleAntiCofactor, int binate, int inputLength) {
+        Cover result = new Cover(inputLength);
 
         for (int i = 0; i < simpleCofactor.size(); i++) {
             Cube currentCube = new Cube(simpleCofactor.getCube(i));
@@ -479,16 +485,15 @@ public class Simplify implements MinimizerInterface {
      *            The fully simplified Cover
      * @return Expression of the simplified function
      */
-    private Expression getExpression(List<Variable> vars, Cover simplifiedCover) {
+    private Expression getExpression(List<Variable> vars, Cover simplifiedCover, int inputLength) {
         // TODO Prüfung ob Cover leer oder voll oder so s. QuineMcCluskey Constant.Zero/.One
 
         Cube currentCube;
-        int inputLength = simplifiedCover.getInputLength();
         Expression expression = null;
 
         for (int i = 0; i < simplifiedCover.size(); i++) {
             currentCube = simplifiedCover.getCube(i);
-            Expression cubeExpression = getTermExpression(vars, currentCube);
+            Expression cubeExpression = getTermExpression(vars, currentCube, inputLength);
 
             if (cubeExpression == null) {
                 continue;
@@ -511,10 +516,10 @@ public class Simplify implements MinimizerInterface {
      *            Cube to convert into Expression
      * @return Expression of one cube
      */
-    private Expression getTermExpression(List<Variable> vars, Cube cube) {
+    private Expression getTermExpression(List<Variable> vars, Cube cube, int inputLength) {
         Expression cubeExpression = null;
 
-        for (int j = 0; j < cube.getInputLength(); j++) {
+        for (int j = 0; j < inputLength; j++) {
             Expression term = null;
 
             switch (cube.getState(j)) {

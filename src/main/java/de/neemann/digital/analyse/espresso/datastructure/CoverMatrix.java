@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2016 Helmut Neemann
+ * Use of this source code is governed by the GPL v3 license
+ * that can be found in the LICENSE file.
+ */
 package de.neemann.digital.analyse.espresso.datastructure;
 
 import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
@@ -7,7 +12,6 @@ import de.neemann.digital.analyse.quinemc.ThreeStateValue;
  * CoverMatrix represent the difference between the (input) cube and the Onset Cover (diffCover)
  */
 public class CoverMatrix extends BooleanMatrix {
-
 
     /**
      * Generate a new Boolean-Matrix and calculate the Cover-Matrix out of the difference between

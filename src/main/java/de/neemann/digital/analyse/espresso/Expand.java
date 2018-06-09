@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2016 Helmut Neemann
+ * Use of this source code is governed by the GPL v3 license
+ * that can be found in the LICENSE file.
+ */
+
 package de.neemann.digital.analyse.espresso;
 
 import java.util.*;
@@ -72,7 +78,7 @@ public final class Expand {
         try {
             coverMatrix = new CoverMatrix(onSet, cube);
         } catch (EmptyCoverException e) {
-            //TODO
+            // TODO
             e.printStackTrace();
         }
         System.out.println("Blocking Matrix: \n" + blockMatrix);

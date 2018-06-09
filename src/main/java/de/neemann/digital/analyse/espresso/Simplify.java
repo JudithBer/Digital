@@ -68,7 +68,7 @@ public class Simplify implements MinimizerInterface {
         BoolTableTSVArray input = new BoolTableTSVArray(boolTable);
 
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);
-        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
+//        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
 
         int binate = selectBinate(cover, inputLength);
 
@@ -76,8 +76,8 @@ public class Simplify implements MinimizerInterface {
         Cover cofactorBinate = generateCofactor(cover, ThreeStateValue.one, binate, inputLength);
         Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate, inputLength);
 
-        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset, binate, inputLength);
-        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset, binate, inputLength);
+        Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate/*, offset*/, binate, inputLength);
+        Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate/*, offset*/, binate, inputLength);
 
         Cover simplifiedCover = mergeWithContainment(simplifiedCofactorBinate,
                 simplifiedCofactorAntiBinate, binate, inputLength);
@@ -198,7 +198,7 @@ public class Simplify implements MinimizerInterface {
      *            Offset of the original function
      * @return simplified Cofactor
      */
-    private Cover simplifyCofactor(Cover cofactor, Cover offset, int binate, int inputLength) {
+    private Cover simplifyCofactor(Cover cofactor, /*Cover offset,*/ int binate, int inputLength) {
 
         Cover inputCofactor = cofactor; // zu vereinfachender Cofactor
         Cover tempCofactor; // temporares Cover während der Vereinfachung mit den teil-vereinfachten

@@ -28,13 +28,14 @@ public class DifferenceMatrix extends BooleanMatrix {
     public DifferenceMatrix(Cover originalCover, Cube cube, String mode)
             throws EmptyCoverException {
         super(originalCover, cube);
+        int inputLength = cube.getInputLength();
 
         // Calculate the difference Cover between the considered cube and the cubes of the cover
         for (int i = 0; i < originalCover.size(); i++) {
-            ThreeStateValue[] row = new ThreeStateValue[cube.getInputLength()];
+            ThreeStateValue[] row = new ThreeStateValue[inputLength];
 
             // Calculate the difference value for each variable value of the cube
-            for (int j = 0; j < cube.getInputLength(); j++) {
+            for (int j = 0; j < inputLength; j++) {
                 boolean element = false;
                 switch (mode) {
                 case "distance":

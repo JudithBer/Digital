@@ -53,7 +53,7 @@ public class Simplify implements MinimizerInterface {
                     "BoolTable has to be initialized and the Arraylist need to be greater than 0");
         }
 
-        System.out.println(boolTable);
+        System.out.println("boolTable:" + vars.size());
 
         // Reihenfolge der Variablen ändern
 //        vars =  new ArrayList<>(vars);
@@ -68,26 +68,18 @@ public class Simplify implements MinimizerInterface {
         // System.out.println(input);
 
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);
-        System.out.println("Cover: \n" + cover);
         Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
-        System.out.println("Offset: \n" + offset);
 
         int binate = selectBinate(cover);
-        System.out.println("Binate: " + binate);
 
         Cover cofactorBinate = generateCofactor(cover, ThreeStateValue.one, binate);
-        System.out.println("Cofactor Binate: \n" + cofactorBinate);
         Cover cofactorAntiBinate = generateCofactor(cover, ThreeStateValue.zero, binate);
-        System.out.println("Cofactor AntiBinate: \n" + cofactorAntiBinate);
 
         Cover simplifiedCofactorBinate = simplifyCofactor(cofactorBinate, offset, binate);
-        System.out.println("Simplified Cofactor: \n" + simplifiedCofactorBinate);
         Cover simplifiedCofactorAntiBinate = simplifyCofactor(cofactorAntiBinate, offset, binate);
-        System.out.println("Simplified AntiCofactor: \n" + simplifiedCofactorAntiBinate);
 
         Cover simplifiedCover = mergeWithContainment(simplifiedCofactorBinate,
                 simplifiedCofactorAntiBinate, binate);
-        System.out.println("END - Simplified Cover: \n" + simplifiedCover);
 
         Expression e = getExpression(vars, simplifiedCover);
         System.out.println("Expression: " + e);
@@ -241,14 +233,9 @@ public class Simplify implements MinimizerInterface {
                 // durchlaufen
                 for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
 
-                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j); // Difference
-                                                                                             // Matrix
-                                                                                             // des
-                                                                                             // aktuell
-                                                                                             // betrachteten
-                                                                                             // Cubes
-                    int rowSum = rowSum(currentDifferenceCube); // Anzahl der Unterschiede zwischen
-                                                                // Cube und Cofactor-Cube
+                 // Difference Matrix des aktuell betrachteten Cubes
+                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j); 
+                    int rowSum = rowSum(currentDifferenceCube); 
 
                     // Wenn nur ein Unterschied -> Entsprechende Stelle DC setzen
                     if (rowSum == 1) {
@@ -286,6 +273,11 @@ public class Simplify implements MinimizerInterface {
                                                         .getState(k) == ThreeStateValue.zero)) {
 
                                     indexNewDC.add(k);
+                                    
+                                    //falls indexNewDc bereits größer 1, dann kann die for-Schleife abgebrochen werden
+                                    if(indexNewDC.size()>1) {
+                                        break;
+                                    }
                                     // countUse++;
 
                                     // TODO countUse überall richtig hochgesetzt?
@@ -294,7 +286,7 @@ public class Simplify implements MinimizerInterface {
                                         || inputCofactor.getCube(j)
                                             .getState(k) != ThreeStateValue.dontCare) {
                                     // wir ändern nur uns, daher keine offset prüfung für diese
-                                    // Stelle notwendig - TODO Kommentar raus
+                                    // Stelle notwendig
                                     expandable = false;
                                 }
                             }
@@ -303,13 +295,13 @@ public class Simplify implements MinimizerInterface {
                         if (indexNewDC.size() == 1 && expandable) {
                             tempCofactor.addCube(inputCofactor.getCube(j));
 
-                            if (!checkOffset(offset, currentCube, indexNewDC.get(0), currentCube.getState(indexNewDC.get(0)) )) {
+//                            if (!checkOffset(offset, currentCube, indexNewDC.get(0), currentCube.getState(indexNewDC.get(0)) )) {
                                 Cube modifiedCube = new Cube(currentCube);
                                 modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
 
                                 tempCofactor.addCube(modifiedCube);
                                 countUse++;
-                            }
+//                            }
 
                         } else {
                             tempCofactor.addCube(inputCofactor.getCube(j));
@@ -341,37 +333,37 @@ public class Simplify implements MinimizerInterface {
      *            Index of the ThreeStateValue we need to check
      * @return Boolean whether cube is covered by offset
      */
-    private boolean checkOffset(Cover offset, Cube cube, int index, ThreeStateValue currentState) {
-        boolean containedInOffset = false;
-        Cover differenceCover;
-
-        // Prüfen, dass Anitstate nicht in Offset
-        Cube antiCube = new Cube(cube);
-        ThreeStateValue newState;
-        if (currentState == ThreeStateValue.one) {
-            newState = ThreeStateValue.zero;
-        } else {
-            newState = ThreeStateValue.one;
-        }
-        antiCube.setState(index, newState);
-
-        try {
-            differenceCover = new DifferenceMatrix(offset, antiCube, "NoDcElement").getDiffCover();
-        } catch (EmptyCoverException e) {
-            // If the Offset is empty, the cube cannot be contained
-            return false;
-        }
-
-        for (int i = 0; i < differenceCover.size(); i++) {
-            if (differenceCover.getCube(i).inputContains(ThreeStateValue.one)) {
-                continue;
-            } else {
-                containedInOffset = true;
-            }
-        }
-
-        return containedInOffset;
-    }
+//    private boolean checkOffset(Cover offset, Cube cube, int index, ThreeStateValue currentState) {
+//        boolean containedInOffset = false;
+//        Cover differenceCover;
+//
+//        // Prüfen, dass Anitstate nicht in Offset
+//        Cube antiCube = new Cube(cube);
+//        ThreeStateValue newState;
+//        if (currentState == ThreeStateValue.one) {
+//            newState = ThreeStateValue.zero;
+//        } else {
+//            newState = ThreeStateValue.one;
+//        }
+//        antiCube.setState(index, newState);
+//
+//        try {
+//            differenceCover = new DifferenceMatrix(offset, antiCube, "NoDcElement").getDiffCover();
+//        } catch (EmptyCoverException e) {
+//            // If the Offset is empty, the cube cannot be contained
+//            return false;
+//        }
+//
+//        for (int i = 0; i < differenceCover.size(); i++) {
+//            if (differenceCover.getCube(i).inputContains(ThreeStateValue.one)) {
+//                continue;
+//            } else {
+//                containedInOffset = true;
+//            }
+//        }
+//
+//        return containedInOffset;
+//    }
 
     /**
      * Calculates the Sum of the given Cube (every TSV.one increments the rowSum)

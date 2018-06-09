@@ -6,26 +6,27 @@
 
 package de.neemann.digital.analyse.espresso;
 
+import static de.neemann.digital.analyse.expression.Not.not;
+import static de.neemann.digital.analyse.expression.Operation.and;
+import static de.neemann.digital.analyse.expression.Operation.or;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import de.neemann.digital.analyse.MinimizerInterface;
-import de.neemann.digital.analyse.espresso.datastructure.*;
+import de.neemann.digital.analyse.espresso.datastructure.BoolTableTSVArray;
+import de.neemann.digital.analyse.espresso.datastructure.Cover;
+import de.neemann.digital.analyse.espresso.datastructure.Cube;
+import de.neemann.digital.analyse.espresso.datastructure.DifferenceMatrix;
 import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.expression.Expression;
 import de.neemann.digital.analyse.expression.ExpressionException;
 import de.neemann.digital.analyse.expression.Variable;
 import de.neemann.digital.analyse.expression.format.FormatterException;
 import de.neemann.digital.analyse.quinemc.BoolTable;
-import de.neemann.digital.analyse.quinemc.BoolTableByteArray;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 import de.neemann.digital.gui.components.table.ExpressionListener;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static de.neemann.digital.analyse.expression.Not.not;
-import static de.neemann.digital.analyse.expression.Operation.and;
-import static de.neemann.digital.analyse.expression.Operation.or;
 
 /**
  * The Simplify Algorithm to minimize logical functions.
@@ -233,8 +234,8 @@ public class Simplify implements MinimizerInterface {
                 for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
 
                  // Difference Matrix des aktuell betrachteten Cubes
-                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j); 
-                    int rowSum = rowSumGreater1(currentDifferenceCube, inputLength); 
+                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j);
+                    int rowSum = rowSumGreater1(currentDifferenceCube, inputLength);
 
                     // Wenn nur ein Unterschied -> Entsprechende Stelle DC setzen
                     if (rowSum == 1) {
@@ -272,9 +273,8 @@ public class Simplify implements MinimizerInterface {
                                                         .getState(k) == ThreeStateValue.zero)) {
 
                                     indexNewDC.add(k);
-                                    
                                     //falls indexNewDc bereits größer 1, dann kann die for-Schleife abgebrochen werden
-                                    if(indexNewDC.size()>1) {
+                                    if (indexNewDC.size()>1) {
                                         break;
                                     }
                                     // countUse++;
@@ -379,14 +379,14 @@ public class Simplify implements MinimizerInterface {
 //        }
 //        return rowSum;
 //    }
-    
+
     private int rowSumGreater1(Cube cube, int inputLength){
         int rowSum = 0;
         for (int i = 0; i < inputLength; i++) {
             if (cube.getState(i) == ThreeStateValue.one) {
                 rowSum++;
             }
-            if(rowSum >1) {
+            if (rowSum >1) {
                 return rowSum;
             }
         }

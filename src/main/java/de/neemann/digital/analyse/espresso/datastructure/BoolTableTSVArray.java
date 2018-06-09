@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.neemann.digital.analyse.quinemc.BoolTable;
-import de.neemann.digital.analyse.quinemc.BoolTableByteArray;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
 /**
@@ -19,6 +18,11 @@ import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 public class BoolTableTSVArray implements BoolTable {
     private List<ThreeStateValue> boolTable = new ArrayList<>();
 
+    /**
+     * Contructor to generate a BoolTableTSVArray out of given booltable
+     * @param boolTableInput
+     *            booltable to simplify
+     */
     public BoolTableTSVArray(BoolTable boolTableInput) {
         for (int i = 0; i < boolTableInput.size(); i++) {
             this.boolTable.add(boolTableInput.get(i));

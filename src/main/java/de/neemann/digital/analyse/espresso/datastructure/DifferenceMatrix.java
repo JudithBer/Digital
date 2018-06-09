@@ -68,11 +68,8 @@ public class DifferenceMatrix extends BooleanMatrix {
                 .getState(inputIndex);
         ThreeStateValue cubeInputState = getCube().getState(inputIndex);
 
-        return (cubeInputState == ThreeStateValue.one && coverInputState != ThreeStateValue.one)
-                || (cubeInputState == ThreeStateValue.zero
-                        && coverInputState != ThreeStateValue.zero)
-                || (cubeInputState == ThreeStateValue.dontCare
-                        && coverInputState != ThreeStateValue.dontCare);
+        //cubeInputState darf nicht gleich coverInputstate sein (1!=1, 0 != 0 , DC != DC)
+        return !cubeInputState.equals(coverInputState);
     }
 
     /**

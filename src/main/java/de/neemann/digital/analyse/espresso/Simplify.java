@@ -16,9 +16,9 @@ import de.neemann.digital.analyse.MinimizerInterface;
 import de.neemann.digital.analyse.espresso.datastructure.BoolTableTSVArray;
 import de.neemann.digital.analyse.espresso.datastructure.Cover;
 import de.neemann.digital.analyse.espresso.datastructure.Cube;
-import de.neemann.digital.analyse.espresso.datastructure.diff.DifferenceMatrix;
-import de.neemann.digital.analyse.espresso.datastructure.diff.DifferenceMatrixModeContainment;
-import de.neemann.digital.analyse.espresso.datastructure.diff.DifferenceMatrixModeDistance;
+import de.neemann.digital.analyse.espresso.datastructure.simplify.DifferenceMatrix;
+import de.neemann.digital.analyse.espresso.datastructure.simplify.DifferenceMatrixContainment;
+import de.neemann.digital.analyse.espresso.datastructure.simplify.DifferenceMatrixDistance;
 import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.expression.Expression;
 import de.neemann.digital.analyse.expression.ExpressionException;
@@ -201,8 +201,6 @@ public class Simplify implements MinimizerInterface {
      * Method to simplify the given Cofactor
      * @param cofactor
      *            which need to be simplified.
-     * @param offset
-     *            Offset of the original function
      * @return simplified Cofactor
      */
     private Cover simplifyCofactor(Cover cofactor, /*Cover offset,*/ int binate, int inputLength) {
@@ -232,26 +230,20 @@ public class Simplify implements MinimizerInterface {
 
                 // DifferenceMatrix stellt die Unterschiede zwischen dem currentCube
                 // und allen Cubes des Cofactor-Covers [One, wenn nicht die gleichen States]
-                long start = System.nanoTime();
                 DifferenceMatrix differenceMatrix = null;
-                System.out.println("InputCofactor: " + inputCofactor.size());
                 try {
-                    differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube, new DifferenceMatrixModeDistance());
+                    differenceMatrix = new DifferenceMatrixDistance(inputCofactor, currentCube);
                 } catch (EmptyCoverException e) {
                     // TODO inputCofactor leer -> was tun? wo prüfen?
                     e.printStackTrace();
                 }
-                long end = System.nanoTime();
-                System.out.println("Simplify: DifferenceMarix: " + (end - start));
-
-                long s1 = System.nanoTime();
 
                 // Mit allen Cubes vergleichen - Alle Cubes der zugehörigen Difference-Matrix
                 // durchlaufen
-                for (int j = 0; j < differenceMatrix.getDiffCover().size(); j++) {
+                for (int j = 0; j < differenceMatrix.getDifferenceCover().size(); j++) {
 
                  // Difference Matrix des aktuell betrachteten Cubes
-                    Cube currentDifferenceCube = differenceMatrix.getDiffCover().getCube(j);
+                    Cube currentDifferenceCube = differenceMatrix.getDifferenceCover().getCube(j);
                     int rowSum = rowSumGreater1(currentDifferenceCube, inputLength);
 
                     // Wenn nur ein Unterschied -> Entsprechende Stelle DC setzen
@@ -259,7 +251,7 @@ public class Simplify implements MinimizerInterface {
                         Cube simplifiedCube = new Cube(inputCofactor.getCube(j));
 
                         // Index des Unterschiedes finden
-                        Cube diffCube = differenceMatrix.getDiffCover().getCube(j);
+                        Cube diffCube = differenceMatrix.getDifferenceCover().getCube(j);
                         int indexNewDC = Arrays.asList(diffCube.getInput())
                                 .indexOf(ThreeStateValue.one);
 
@@ -336,20 +328,12 @@ public class Simplify implements MinimizerInterface {
                     }
                 }
 
-                long s2 = System.nanoTime();
-                System.out.println("Simplify: Other: " + (s2 - s1));
-
-
                 if (countUse == 0) {
                     tempCofactor.addCube(currentCube);
                     containment.put(currentCube.toString(), currentCube);
                 }
-
                 inputCofactor = tempCofactor;
-                System.out.println("Cubes doppelt eingefügt:" + doppelteCubes);
             }
-            // System.out.println("Zwischenschritt Simplified Cofactor: \n" + inputCofactor);
-
         } while (inputCofactorSize != inputCofactor.size());
 
         return inputCofactor;
@@ -487,11 +471,11 @@ public class Simplify implements MinimizerInterface {
         // ZERO - no contradiction, ONE - contradiction -> not possible to cover the cube
         // If the opposite Cofactor cover is empty, the cube is not covered by it
         try {
-            containMatrix = new DifferenceMatrix(oppositeCofactor, cube, new DifferenceMatrixModeContainment());
+            containMatrix = new DifferenceMatrixContainment(oppositeCofactor, cube);
         } catch (EmptyCoverException e) {
             return false;
         }
-        Cover containCover = containMatrix.getDiffCover();
+        Cover containCover = containMatrix.getDifferenceCover();
 
         // Check for each cube of the opposite cofactor cover (or more precisely, the difference
         // cube)

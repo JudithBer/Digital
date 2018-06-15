@@ -5,6 +5,7 @@
  */
 package de.neemann.digital.analyse.espresso.datastructure;
 
+import de.neemann.digital.analyse.espresso.datastructure.simplify.DifferenceMatrixDistance;
 import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
@@ -191,7 +192,7 @@ public class Cover implements Iterable<Cube> {
      */
     public boolean contains(Cube cube) {
         try {
-            Cover differenceCover = new DifferenceMatrix(this, cube, "distance").getDiffCover();
+            Cover differenceCover = new DifferenceMatrixDistance(this, cube).getDifferenceCover();
             int inputLenght = differenceCover.getInputLength();
 
             // Alle Cubes der DiffMatrix durchgehen

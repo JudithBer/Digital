@@ -37,13 +37,16 @@ public class DifferenceMatrixContainment extends DifferenceMatrix {
                 ThreeStateValue coverInputState = coverInputStates[inputIndex];
                 ThreeStateValue cubeInputState = cubeInputStates[inputIndex];
 
-                boolean diffElement =  (cubeInputState == ThreeStateValue.one && coverInputState == ThreeStateValue.zero)
-                        || (cubeInputState == ThreeStateValue.zero
-                        && coverInputState == ThreeStateValue.one)
-                        || (cubeInputState == ThreeStateValue.dontCare
-                        && coverInputState != ThreeStateValue.dontCare);
+                boolean diffElement =
+                        (cubeInputState == ThreeStateValue.one && coverInputState == ThreeStateValue.zero)
+                        || (cubeInputState == ThreeStateValue.zero && coverInputState == ThreeStateValue.one)
+                        || (cubeInputState == ThreeStateValue.dontCare && coverInputState != ThreeStateValue.dontCare);
 
-                row[inputIndex] = ThreeStateValue.value(diffElement);
+                if (diffElement) {
+                    row[inputIndex] = ThreeStateValue.one;
+                } else {
+                    row[inputIndex] = ThreeStateValue.zero;
+                }
             }
 
             Cube c = new Cube(ThreeStateValue.one);

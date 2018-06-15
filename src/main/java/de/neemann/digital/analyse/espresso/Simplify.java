@@ -52,7 +52,7 @@ public class Simplify implements MinimizerInterface {
     public void minimize(List<Variable> vars, BoolTable boolTable, String resultName,
             ExpressionListener listener) throws ExpressionException, FormatterException {
 
-        long start = System.nanoTime();
+        long start = System.currentTimeMillis();
 
         if (vars == null || vars.size() == 0) {
             throw new FormatterException("Count of vars has to be initialized and greater than 0");
@@ -85,7 +85,7 @@ public class Simplify implements MinimizerInterface {
 
         Expression e = getExpression(vars, simplifiedCover, inputLength);
 
-        long end = System.nanoTime();
+        long end = System.currentTimeMillis();
 
         System.out.println("Simplify - minimize - Took: " + (end - start));
 
@@ -237,13 +237,14 @@ public class Simplify implements MinimizerInterface {
                     // TODO inputCofactor leer -> was tun? wo prüfen?
                     e.printStackTrace();
                 }
+                Cover differenceCover = differenceMatrix.getDifferenceCover();
 
                 // Mit allen Cubes vergleichen - Alle Cubes der zugehörigen Difference-Matrix
                 // durchlaufen
-                for (int j = 0; j < differenceMatrix.getDifferenceCover().size(); j++) {
+                for (int j = 0; j < differenceCover.size(); j++) {
 
                  // Difference Matrix des aktuell betrachteten Cubes
-                    Cube currentDifferenceCube = differenceMatrix.getDifferenceCover().getCube(j);
+                    Cube currentDifferenceCube = differenceCover.getCube(j);
                     int rowSum = rowSumGreater1(currentDifferenceCube, inputLength);
 
                     // Wenn nur ein Unterschied -> Entsprechende Stelle DC setzen
@@ -251,7 +252,7 @@ public class Simplify implements MinimizerInterface {
                         Cube simplifiedCube = new Cube(inputCofactor.getCube(j));
 
                         // Index des Unterschiedes finden
-                        Cube diffCube = differenceMatrix.getDifferenceCover().getCube(j);
+                        Cube diffCube = differenceCover.getCube(j);
                         int indexNewDC = Arrays.asList(diffCube.getInput())
                                 .indexOf(ThreeStateValue.one);
 

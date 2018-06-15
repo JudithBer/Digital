@@ -3,10 +3,12 @@
  * Use of this source code is governed by the GPL v3 license
  * that can be found in the LICENSE file.
  */
-package de.neemann.digital.analyse.espresso.datastructure;
+package de.neemann.digital.analyse.heuristic.espresso.datastructure;
 
 import static org.junit.Assert.*;
 
+import de.neemann.digital.analyse.heuristic.datastructure.Cover;
+import de.neemann.digital.analyse.heuristic.datastructure.Cube;
 import org.junit.Test;
 
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;

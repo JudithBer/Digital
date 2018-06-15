@@ -10,15 +10,15 @@ import static de.neemann.digital.analyse.expression.Not.not;
 import static de.neemann.digital.analyse.expression.Operation.and;
 import static de.neemann.digital.analyse.expression.Operation.or;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import de.neemann.digital.analyse.MinimizerInterface;
 import de.neemann.digital.analyse.espresso.datastructure.BoolTableTSVArray;
 import de.neemann.digital.analyse.espresso.datastructure.Cover;
 import de.neemann.digital.analyse.espresso.datastructure.Cube;
-import de.neemann.digital.analyse.espresso.datastructure.DifferenceMatrix;
+import de.neemann.digital.analyse.espresso.datastructure.diff.DifferenceMatrix;
+import de.neemann.digital.analyse.espresso.datastructure.diff.DifferenceMatrixModeContainment;
+import de.neemann.digital.analyse.espresso.datastructure.diff.DifferenceMatrixModeDistance;
 import de.neemann.digital.analyse.espresso.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.expression.Expression;
 import de.neemann.digital.analyse.expression.ExpressionException;
@@ -52,6 +52,8 @@ public class Simplify implements MinimizerInterface {
     public void minimize(List<Variable> vars, BoolTable boolTable, String resultName,
             ExpressionListener listener) throws ExpressionException, FormatterException {
 
+        long start = System.nanoTime();
+
         if (vars == null || vars.size() == 0) {
             throw new FormatterException("Count of vars has to be initialized and greater than 0");
         }
@@ -60,16 +62,15 @@ public class Simplify implements MinimizerInterface {
                     "BoolTable has to be initialized and the Arraylist need to be greater than 0");
         }
 
-        System.out.println("boolTable:" + vars.size());
+        System.out.println("vars:" + vars.size());
 
         int inputLength = vars.size();
-
 
         BoolTableTSVArray input = new BoolTableTSVArray(boolTable);
 
         Cover cover = input.getCover(ThreeStateValue.one, inputLength);
-//        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
 
+//        Cover offset = input.getCover(ThreeStateValue.zero, inputLength);
         int binate = selectBinate(cover, inputLength);
 
         //inputLength mitgeben, damit es nicht mehr neu berechnet werden muss jedes mal
@@ -83,7 +84,12 @@ public class Simplify implements MinimizerInterface {
                 simplifiedCofactorAntiBinate, binate, inputLength);
 
         Expression e = getExpression(vars, simplifiedCover, inputLength);
-        System.out.println("Expression: " + e);
+
+        long end = System.nanoTime();
+
+        System.out.println("Simplify - minimize - Took: " + (end - start));
+
+        System.out.println("Expression: " + e + "\n");
         // FormatToExpression.FORMATTER_JAVA.format(e));
         listener.resultFound(resultName, e);
     }
@@ -105,18 +111,18 @@ public class Simplify implements MinimizerInterface {
         for (int i = 0; i < input.size(); i++) {
 
             Cube currentCube = input.getCube(i);
+            ThreeStateValue[] currentCubeInputs = currentCube.getInput();
             for (int j = 0; j < inputLength; j++) {
-
-                switch (currentCube.getState(j)) {
-                case zero:
-                    zeros[j]++;
-                    break;
-                case one:
-                    ones[j]++;
-                    break;
-                case dontCare:
-                    dcs[j]++;
-                    break;
+                switch (currentCubeInputs[j]) {
+                    case zero:
+                        zeros[j]++;
+                        break;
+                    case one:
+                        ones[j]++;
+                        break;
+                    case dontCare:
+                        dcs[j]++;
+                        break;
                 }
             }
         }
@@ -178,9 +184,10 @@ public class Simplify implements MinimizerInterface {
 
         for (int i = 0; i < input.size(); i++) {
 
-            if (input.getCube(i).getState(binate) != antiState) {
+            Cube inputCube = input.getCube(i);
+            if (inputCube.getState(binate) != antiState) {
 
-                Cube newCube = new Cube(input.getCube(i));
+                Cube newCube = new Cube(inputCube);
                 newCube.setState(binate, ThreeStateValue.dontCare);
                 cofactor.addCube(newCube);
             }
@@ -211,8 +218,12 @@ public class Simplify implements MinimizerInterface {
             // Alle Cubes durchlaufen und vereinfachen
             for (int i = 0; i < inputCofactor.size(); i++) {
 
+                int doppelteCubes=0;
+
                 int countUse = 0; // Anzahl wie oft mit anderem Cube vereinfacht werden konnte
                 tempCofactor = new Cover(inputLength); // Initialisieren
+
+                Map<String, Cube> containment = new HashMap<String, Cube>();
 
                 Cube currentCube = inputCofactor.getCube(0); // 0-ter da akteller am Ende immer
                                                              // hinten angehängt wird und danach mit
@@ -221,13 +232,19 @@ public class Simplify implements MinimizerInterface {
 
                 // DifferenceMatrix stellt die Unterschiede zwischen dem currentCube
                 // und allen Cubes des Cofactor-Covers [One, wenn nicht die gleichen States]
+                long start = System.nanoTime();
                 DifferenceMatrix differenceMatrix = null;
+                System.out.println("InputCofactor: " + inputCofactor.size());
                 try {
-                    differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube, "distance");
+                    differenceMatrix = new DifferenceMatrix(inputCofactor, currentCube, new DifferenceMatrixModeDistance());
                 } catch (EmptyCoverException e) {
                     // TODO inputCofactor leer -> was tun? wo prüfen?
                     e.printStackTrace();
                 }
+                long end = System.nanoTime();
+                System.out.println("Simplify: DifferenceMarix: " + (end - start));
+
+                long s1 = System.nanoTime();
 
                 // Mit allen Cubes vergleichen - Alle Cubes der zugehörigen Difference-Matrix
                 // durchlaufen
@@ -251,6 +268,8 @@ public class Simplify implements MinimizerInterface {
 
                         // Geänderten Cube in tempCofactor
                         tempCofactor.addCube(simplifiedCube);
+                        containment.put(simplifiedCube.toString(), simplifiedCube);
+
                         // Verwendung notieren
                         countUse++;
 
@@ -259,18 +278,20 @@ public class Simplify implements MinimizerInterface {
                         List<Integer> indexNewDC = new ArrayList<Integer>();
                         boolean expandable = true;
 
+                        ThreeStateValue[] currentDifferenceCubeInputs = currentDifferenceCube.getInput();
+                        ThreeStateValue[] currentCubeInputs = currentCube.getInput();
+                        ThreeStateValue[] inputCofactorCubeInputs = inputCofactor.getCube(j).getInput();
+
                         // Cube durchlaufen und alle Stellen mit Unterschied zwischen den Cubes
                         // betrachten
                         for (int k = 0; k < inputLength && expandable; k++) {
 
-                            if (currentDifferenceCube.getState(k) == ThreeStateValue.one) {
+                            if (currentDifferenceCubeInputs[k] == ThreeStateValue.one) {
 
-                                if ((currentCube.getState(k) == ThreeStateValue.zero
-                                        && inputCofactor.getCube(j)
-                                                .getState(k) == ThreeStateValue.one)
-                                        || (currentCube.getState(k) == ThreeStateValue.one
-                                                && inputCofactor.getCube(j)
-                                                        .getState(k) == ThreeStateValue.zero)) {
+                                if ((currentCubeInputs[k] == ThreeStateValue.zero
+                                        && inputCofactorCubeInputs[k] == ThreeStateValue.one)
+                                        || (currentCubeInputs[k] == ThreeStateValue.one
+                                                && inputCofactorCubeInputs[k] == ThreeStateValue.zero)) {
 
                                     indexNewDC.add(k);
                                     //falls indexNewDc bereits größer 1, dann kann die for-Schleife abgebrochen werden
@@ -281,9 +302,8 @@ public class Simplify implements MinimizerInterface {
 
                                     // TODO countUse überall richtig hochgesetzt?
 
-                                } else if (currentCube.getState(k) == ThreeStateValue.dontCare
-                                        || inputCofactor.getCube(j)
-                                            .getState(k) != ThreeStateValue.dontCare) {
+                                } else if (currentCubeInputs[k] == ThreeStateValue.dontCare
+                                        || inputCofactorCubeInputs[k] != ThreeStateValue.dontCare) {
                                     // wir ändern nur uns, daher keine offset prüfung für diese
                                     // Stelle notwendig
                                     expandable = false;
@@ -291,29 +311,42 @@ public class Simplify implements MinimizerInterface {
                             }
                         }
 
+                        Cube comparedCube = inputCofactor.getCube(j);
                         if (indexNewDC.size() == 1 && expandable) {
-                            tempCofactor.addCube(inputCofactor.getCube(j));
+                            tempCofactor.addCube(comparedCube);
+                            containment.put(comparedCube.toString(), comparedCube);
 
 //                            if (!checkOffset(offset, currentCube, indexNewDC.get(0), currentCube.getState(indexNewDC.get(0)) )) {
                                 Cube modifiedCube = new Cube(currentCube);
                                 modifiedCube.setState(indexNewDC.get(0), ThreeStateValue.dontCare);
 
-                                tempCofactor.addCube(modifiedCube);
-                                countUse++;
+                                if (containment.containsKey(modifiedCube.toString())) {
+                                    tempCofactor.addCube(modifiedCube);
+                                    containment.put(modifiedCube.toString(), modifiedCube);
+
+                                    countUse++;
+                                    doppelteCubes++;
+                                }
 //                            }
 
                         } else {
-                            tempCofactor.addCube(inputCofactor.getCube(j));
-
+                            tempCofactor.addCube(comparedCube);
+                            containment.put(comparedCube.toString(), comparedCube);
                         }
                     }
                 }
 
+                long s2 = System.nanoTime();
+                System.out.println("Simplify: Other: " + (s2 - s1));
+
+
                 if (countUse == 0) {
                     tempCofactor.addCube(currentCube);
+                    containment.put(currentCube.toString(), currentCube);
                 }
 
                 inputCofactor = tempCofactor;
+                System.out.println("Cubes doppelt eingefügt:" + doppelteCubes);
             }
             // System.out.println("Zwischenschritt Simplified Cofactor: \n" + inputCofactor);
 
@@ -382,8 +415,9 @@ public class Simplify implements MinimizerInterface {
 
     private int rowSumGreater1(Cube cube, int inputLength){
         int rowSum = 0;
+        ThreeStateValue[] states = cube.getInput();
         for (int i = 0; i < inputLength; i++) {
-            if (cube.getState(i) == ThreeStateValue.one) {
+            if (states[i] == ThreeStateValue.one) {
                 rowSum++;
             }
             if (rowSum >1) {
@@ -453,7 +487,7 @@ public class Simplify implements MinimizerInterface {
         // ZERO - no contradiction, ONE - contradiction -> not possible to cover the cube
         // If the opposite Cofactor cover is empty, the cube is not covered by it
         try {
-            containMatrix = new DifferenceMatrix(oppositeCofactor, cube, "containment");
+            containMatrix = new DifferenceMatrix(oppositeCofactor, cube, new DifferenceMatrixModeContainment());
         } catch (EmptyCoverException e) {
             return false;
         }
@@ -518,11 +552,12 @@ public class Simplify implements MinimizerInterface {
      */
     private Expression getTermExpression(List<Variable> vars, Cube cube, int inputLength) {
         Expression cubeExpression = null;
+        ThreeStateValue[] cubeInputs = cube.getInput();
 
         for (int j = 0; j < inputLength; j++) {
             Expression term = null;
 
-            switch (cube.getState(j)) {
+            switch (cubeInputs[j]) {
             case dontCare:
                 break;
             case zero:

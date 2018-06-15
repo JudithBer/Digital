@@ -57,6 +57,10 @@ public class Cube {
         this.output = origin.output;
     }
 
+    public Cube(ThreeStateValue output) {
+        this.output = output;
+    }
+
     /**
      * Convert the Cube into Positional Cube Notation (PCN)
      * @return An array with the input values of the Cube in PCN(-> array of double the length of
@@ -151,4 +155,7 @@ public class Cube {
         return Arrays.toString(input) + " " + output;
     }
 
+    public void setInput(ThreeStateValue[] input) {
+        this.input = input;
+    }
 }

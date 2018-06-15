@@ -199,8 +199,9 @@ public class Cover implements Iterable<Cube> {
                 int rowSum = 0;
                 Cube currentCube = differenceCover.getCube(i);
 
+                ThreeStateValue[] currentCubeInputs = currentCube.getInput();
                 for (int j = 0; j < inputLenght; j++) {
-                    if (currentCube.getState(j) == ThreeStateValue.one)
+                    if (currentCubeInputs[j] == ThreeStateValue.one)
                         rowSum++;
                 }
 

@@ -28,6 +28,9 @@ public class DifferenceMatrix extends BooleanMatrix {
     public DifferenceMatrix(Cover originalCover, Cube cube, String mode)
             throws EmptyCoverException {
         super(originalCover, cube);
+
+        long start = System.nanoTime();
+
         int inputLength = cube.getInputLength();
 
         // Calculate the difference Cover between the considered cube and the cubes of the cover
@@ -51,8 +54,14 @@ public class DifferenceMatrix extends BooleanMatrix {
                 row[j] = ThreeStateValue.value(element);
             }
 
+            long end1 = System.nanoTime();
+            System.out.println("DifferenceMarix Constructor 1: " + (end1 - start));
+
             // Save the difference Cubes in the difference Cover
             this.getDiffCover().addCube(new Cube(row, ThreeStateValue.one));
+
+            long end2 = System.nanoTime();
+            System.out.println("DifferenceMarix Constructor 2: " + (end2 - end1));
         }
     }
 

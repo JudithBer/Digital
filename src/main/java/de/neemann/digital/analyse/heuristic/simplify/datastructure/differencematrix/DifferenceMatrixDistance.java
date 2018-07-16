@@ -5,14 +5,20 @@ import de.neemann.digital.analyse.heuristic.datastructure.Cube;
 import de.neemann.digital.analyse.heuristic.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
+/**
+ * Calculates if cube equals exactly another Cube in the given Cover
+ * @author Judith Berthold, Annika Keil
+ */
 public class DifferenceMatrixDistance extends DifferenceMatrix {
 
     /**
      * Generate a new Difference-Matrix with the given Cube and Cover
-     *
-     * @param originalCover Cover to compare with the given Cube to calculate the Difference-Matrix
-     * @param cube          Cube to compare with a Cover to calculate the Difference-Matrix
-     * @throws EmptyCoverException if the given Cover is empty
+     * @param originalCover
+     *            Cover to compare with the given Cube to calculate the Difference-Matrix
+     * @param cube
+     *            Cube to compare with a Cover to calculate the Difference-Matrix
+     * @throws EmptyCoverException
+     *             if the given Cover is empty
      */
     public DifferenceMatrixDistance(Cover originalCover, Cube cube) throws EmptyCoverException {
         super(originalCover, cube);
@@ -30,7 +36,6 @@ public class DifferenceMatrixDistance extends DifferenceMatrix {
 
             ThreeStateValue[] coverInputStates = coverCube.getInput();
             ThreeStateValue[] cubeInputStates = cube.getInput();
-
 
             // Calculate the difference value for each variable value of the cube
             for (int inputIndex = 0; inputIndex < inputLength; inputIndex++) {

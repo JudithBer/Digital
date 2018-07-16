@@ -57,6 +57,11 @@ public class Cube {
         this.output = origin.output;
     }
 
+    /**
+     * Create a new Cube with the State of the given output
+     * @param output
+     *            State for the new Cube
+     */
     public Cube(ThreeStateValue output) {
         this.output = output;
     }
@@ -155,6 +160,11 @@ public class Cube {
         return Arrays.toString(input) + " " + output;
     }
 
+    /**
+     * Set the State of the Cube to the given input
+     * @param input
+     *            new State for the Cube
+     */
     public void setInput(ThreeStateValue[] input) {
         this.input = input;
     }

@@ -24,12 +24,17 @@ import static de.neemann.digital.analyse.expression.Not.not;
 import static de.neemann.digital.analyse.expression.Operation.and;
 import static de.neemann.digital.analyse.expression.Operation.or;
 
+/**
+ * The main Class of the Simplify Algorithm with the different Operations.
+ * @author Judith Berthold, Annika Keil
+ */
 public class Simplify implements MinimizerInterface {
 
     private int inputLength;
 
     @Override
-    public void minimize(List<Variable> vars, BoolTable boolTable, String resultName, ExpressionListener listener) throws ExpressionException, FormatterException {
+    public void minimize(List<Variable> vars, BoolTable boolTable, String resultName,
+            ExpressionListener listener) throws ExpressionException, FormatterException {
         long start = System.currentTimeMillis();
         if (vars == null || vars.size() == 0) {
             throw new FormatterException("Count of vars has to be initialized and greater than 0");
@@ -45,7 +50,7 @@ public class Simplify implements MinimizerInterface {
 
         BoolTableTSVArray input = new BoolTableTSVArray(boolTable);
 
-        Cover cover = input.getCover(ThreeStateValue.one,  vars.size());
+        Cover cover = input.getCover(ThreeStateValue.one, vars.size());
 
         Cover simplifiedCover = simplify(cover);
 
@@ -60,7 +65,7 @@ public class Simplify implements MinimizerInterface {
     }
 
     private Cover simplify(Cover cover) {
-        if(isUnate(cover)){
+        if (isUnate(cover)) {
             Cover returnCover = unateSimplifiy(cover);
             return returnCover;
         }
@@ -70,9 +75,10 @@ public class Simplify implements MinimizerInterface {
         Cover cofactor = generateCofactor(cover, ThreeStateValue.one, binate);
         Cover antiCofactor = generateCofactor(cover, ThreeStateValue.zero, binate);
 
-        Cover simplifiedCover = mergeWithContainment(simplify(cofactor),  simplify(antiCofactor), binate);
+        Cover simplifiedCover = mergeWithContainment(simplify(cofactor), simplify(antiCofactor),
+                binate);
 
-        if (cover.size() < simplifiedCover.size()){
+        if (cover.size() < simplifiedCover.size()) {
             return simplifiedCover;
         }
 
@@ -84,8 +90,8 @@ public class Simplify implements MinimizerInterface {
 
         for (int i = 0; i < cover.size(); i++) {
             Cube cube = cover.getCube(i);
-            if(!containedCover(cover, cube, i)) {
-               simplifiedCover.addCube(cube);
+            if (!containedCover(cover, cube, i)) {
+                simplifiedCover.addCube(cube);
             }
         }
 
@@ -137,7 +143,7 @@ public class Simplify implements MinimizerInterface {
 
         List<Integer> minimums = new ArrayList<Integer>(inputLength);
         for (int i = 0; i < inputLength; i++) {
-            if (amounts.x[i] < amounts.y[i]){
+            if (amounts.x[i] < amounts.y[i]) {
                 minimums.add(i, amounts.x[i]);
 
             } else {
@@ -146,7 +152,7 @@ public class Simplify implements MinimizerInterface {
         }
 
         int max = Collections.max(minimums);
-        if(max == 0) {
+        if (max == 0) {
             return true;
         }
 
@@ -168,14 +174,14 @@ public class Simplify implements MinimizerInterface {
             ThreeStateValue[] currentCubeInputs = cover.getCube(i).getInput();
             for (int j = 0; j < inputLength; j++) {
                 switch (currentCubeInputs[j]) {
-                    case zero:
-                        zeros[j]++;
-                        break;
-                    case one:
-                        ones[j]++;
-                        break;
-                    default:
-                        break;
+                case zero:
+                    zeros[j]++;
+                    break;
+                case one:
+                    ones[j]++;
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -193,13 +199,13 @@ public class Simplify implements MinimizerInterface {
         Tuple<int[], int[]> amounts = calculateAmounts(cover);
 
         // Nochmal unate-Prüfung notwendig?
-        if(isUnate(cover)) {
+        if (isUnate(cover)) {
             return new Tuple(true, 0);
         }
 
         List<Integer> binateVariables = new ArrayList<Integer>();
-        for(int i = 0; i < inputLength; i++){
-            if(amounts.x[i] != 0 && amounts.y[i] != 0){
+        for (int i = 0; i < inputLength; i++) {
+            if (amounts.x[i] != 0 && amounts.y[i] != 0) {
                 binateVariables.add(i);
             }
         }
@@ -207,9 +213,9 @@ public class Simplify implements MinimizerInterface {
         int binate = binateVariables.get(0);
         int binateMax = amounts.x[binate] + amounts.y[binate];
 
-        for (int j: binateVariables) {
+        for (int j : binateVariables) {
             int currentSum = amounts.x[j] + amounts.y[j];
-            if (binateMax < currentSum){
+            if (binateMax < currentSum) {
                 binate = j;
                 binateMax = currentSum;
             }
@@ -380,14 +386,14 @@ public class Simplify implements MinimizerInterface {
             Expression term = null;
 
             switch (cubeInputs[j]) {
-                case dontCare:
-                    break;
-                case zero:
-                    term = not(vars.get(j));
-                    break;
-                case one:
-                    term = vars.get(j);
-                    break;
+            case dontCare:
+                break;
+            case zero:
+                term = not(vars.get(j));
+                break;
+            case one:
+                term = vars.get(j);
+                break;
             }
 
             if (term == null) {

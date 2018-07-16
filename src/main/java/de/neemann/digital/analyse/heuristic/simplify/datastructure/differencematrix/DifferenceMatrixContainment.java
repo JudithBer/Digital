@@ -5,14 +5,20 @@ import de.neemann.digital.analyse.heuristic.datastructure.Cube;
 import de.neemann.digital.analyse.heuristic.exceptions.EmptyCoverException;
 import de.neemann.digital.analyse.quinemc.ThreeStateValue;
 
+/**
+ * Special Kind of Difference Matrix. Calculates if a Cube is contained in the other Cover.
+ * @author Judith Berthold, Annika Keil
+ */
 public class DifferenceMatrixContainment extends DifferenceMatrix {
 
     /**
      * Generate a new Difference-Matrix with the given Cube and Cover
-     *
-     * @param originalCover Cover to compare with the given Cube to calculate the Difference-Matrix
-     * @param cube          Cube to compare with a Cover to calculate the Difference-Matrix
-     * @throws EmptyCoverException if the given Cover is empty
+     * @param originalCover
+     *            Cover to compare with the given Cube to calculate the Difference-Matrix
+     * @param cube
+     *            Cube to compare with a Cover to calculate the Difference-Matrix
+     * @throws EmptyCoverException
+     *             if the given Cover is empty
      */
     public DifferenceMatrixContainment(Cover originalCover, Cube cube) throws EmptyCoverException {
         super(originalCover, cube);
@@ -31,16 +37,17 @@ public class DifferenceMatrixContainment extends DifferenceMatrix {
             ThreeStateValue[] coverInputStates = coverCube.getInput();
             ThreeStateValue[] cubeInputStates = cube.getInput();
 
-
             // Calculate the difference value for each variable value of the cube
             for (int inputIndex = 0; inputIndex < inputLength; inputIndex++) {
                 ThreeStateValue coverInputState = coverInputStates[inputIndex];
                 ThreeStateValue cubeInputState = cubeInputStates[inputIndex];
 
-                boolean diffElement =
-                        (cubeInputState == ThreeStateValue.one && coverInputState == ThreeStateValue.zero)
-                        || (cubeInputState == ThreeStateValue.zero && coverInputState == ThreeStateValue.one)
-                        || (cubeInputState == ThreeStateValue.dontCare && coverInputState != ThreeStateValue.dontCare);
+                boolean diffElement = (cubeInputState == ThreeStateValue.one
+                        && coverInputState == ThreeStateValue.zero)
+                        || (cubeInputState == ThreeStateValue.zero
+                                && coverInputState == ThreeStateValue.one)
+                        || (cubeInputState == ThreeStateValue.dontCare
+                                && coverInputState != ThreeStateValue.dontCare);
 
                 if (diffElement) {
                     row[inputIndex] = ThreeStateValue.one;

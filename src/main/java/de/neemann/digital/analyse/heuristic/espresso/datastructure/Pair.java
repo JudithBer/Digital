@@ -7,16 +7,20 @@ package de.neemann.digital.analyse.heuristic.espresso.datastructure;
 
 /**
  * Structure element to group two attributes of different types
- * @param <A> Generic type of the first item of the pair
- * @param <B> Generic type of the second item of the pair
+ * @param <A>
+ *            Generic type of the first item of the pair
+ * @param <B>
+ *            Generic type of the second item of the pair
  */
 public class Pair<A, B> implements Comparable<Pair<A, B>> {
     private A first;
     private B second;
 
     /**
-     * @param first First Item ob the pair
-     * @param second Second  item of the pair
+     * @param first
+     *            First Item of the pair
+     * @param second
+     *            Second item of the pair
      */
     public Pair(A first, B second) {
         super();
@@ -25,9 +29,8 @@ public class Pair<A, B> implements Comparable<Pair<A, B>> {
     }
 
     /**
-     * Returns the first item ob the pair.
-     *
-     * @return firts, first item of the pair
+     * Returns the first item of the pair.
+     * @return first item of the pair
      */
     public A getFirst() {
         return first;
@@ -35,8 +38,8 @@ public class Pair<A, B> implements Comparable<Pair<A, B>> {
 
     /**
      * Sets the first item of the pair
-     *
-     * @param first, first item of the pair
+     * @param first
+     *            first item of the pair
      */
     public void setFirst(A first) {
         this.first = first;
@@ -44,8 +47,7 @@ public class Pair<A, B> implements Comparable<Pair<A, B>> {
 
     /**
      * Returns the second item of the pair.
-     *
-     * @return second, second item of the pair
+     * @return second second item of the pair
      */
     public B getSecond() {
         return second;
@@ -53,8 +55,8 @@ public class Pair<A, B> implements Comparable<Pair<A, B>> {
 
     /**
      * Sets the second item of the pair
-     *
-     * @param second, second item of the pair
+     * @param second
+     *            second item of the pair
      */
     public void setSecond(B second) {
         this.second = second;

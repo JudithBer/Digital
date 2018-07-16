@@ -4,6 +4,10 @@ import de.neemann.digital.analyse.heuristic.datastructure.Cover;
 import de.neemann.digital.analyse.heuristic.datastructure.Cube;
 import de.neemann.digital.analyse.heuristic.exceptions.EmptyCoverException;
 
+/**
+ * Abstract Class for the different kinds of Difference Matrix
+ * @author Judith Berthold, Annika Keil
+ */
 public abstract class DifferenceMatrix {
 
     protected Cover differenceCover;
@@ -17,8 +21,7 @@ public abstract class DifferenceMatrix {
      * @throws EmptyCoverException
      *             if the given Cover is empty
      */
-    public DifferenceMatrix(Cover originalCover, Cube cube)
-            throws EmptyCoverException {
+    public DifferenceMatrix(Cover originalCover, Cube cube) throws EmptyCoverException {
 
         if (originalCover.size() == 0) {
             throw new EmptyCoverException("Cover may not be empty.");
@@ -34,16 +37,16 @@ public abstract class DifferenceMatrix {
     }
 
     /**
-     * TODO Beschreibung
-     *
+     * Abstract Method to calculate a new Difference Cover
      * @param originalCover
+     *            current Cover of which the Difference Matrix is calculated
      * @param cube
+     *            Cube to compare the given Cover with
      */
     protected abstract void calculateDifferenceCover(Cover originalCover, Cube cube);
 
     /**
      * Returns the calculated difference cover
-     *
      * @return differenceCover the calculated Difference Cover
      */
     public Cover getDifferenceCover() {
